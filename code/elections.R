@@ -95,24 +95,70 @@ ggsave("plot_election_ind_bp.pdf",
 
 ## Method election
 
-# metAB_AUC <- function(model, param, nsim=20){
-#   set.seed(1221)
-#   val <-
-#     foreach(s = 1:nsim, .export = ls(), .combine = rbind) %dopar% {
-#       fun_model <- match.fun(model)
-#       model_out <- rlang::exec(fun_model, !!!param)
-#       sm_d <- model_out$data
-#       sm_o <- model_out$true_outliers
-#       sm_ind <- ind_all(sm_d)
-#       
-#       out._dd2 <- outlier_mahalanobis(sm_ind %>% dplyr::select(ABEI, ABHI, ABEI_d, ABHI_d, ABEI_d2, ABHI_d2))
-#     
-#       auc._dd2 <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), out._dd2$values)
-#       
-#       data.frame(ABoutlier._ = auc._, ABoutlier.d = auc.d, ABoutlier.d2 = auc.d2,
-#                  ABoutlier._d = auc._d, ABoutlier._d2 = auc._d2, ABoutlier.dd2 = auc.dd2,
-#                  ABoutlier._dd2 = auc._dd2)
-#     }
-#   return(val)
-# }
+metAB_AUC <- function(model, param, nsim=20){
+  set.seed(1221)
+  val <-
+    foreach(s = 1:nsim, .export = ls(), .combine = rbind) %dopar% {
+      fun_model <- match.fun(model)
+      model_out <- rlang::exec(fun_model, !!!param)
+      sm_d <- model_out$data
+      sm_o <- model_out$true_outliers
+      sm_ind <- ind_all(sm_d) %>% dplyr::select(ABEI, ABHI, ABEI_d, ABHI_d, ABEI_d2, ABHI_d2)
+      sm_out <- as.integer(1:nrow(sm_d) %in% sm_o)
 
+      out.mcd <- get_outliers_multivariate(sm_ind, method = "mcd")
+      out.adjq_mcd <- get_outliers_multivariate(sm_ind, method = "adjq_mcd")
+      out.ogk <- get_outliers_multivariate(sm_ind, method = "ogk")
+      out.comedian <- get_outliers_multivariate(sm_ind, method = "comedian")
+      out.rmd_sh <- get_outliers_multivariate(sm_ind, method = "rmd_sh")
+
+      auc.mcd <- Metrics::auc(sm_out, out.mcd$values)
+      auc.adjq_mcd <- Metrics::auc(sm_out, out.adjq_mcd$values)
+      auc.ogk <- Metrics::auc(sm_out, out.ogk$values)
+      auc.comedian <- Metrics::auc(sm_out, out.comedian$values)
+      auc.rmd_sh <- Metrics::auc(sm_out, out.rmd_sh$values)
+
+      data.frame(FASTMCD = auc.mcd, FASTMCDAdj = auc.adjq_mcd, OGK = auc.ogk,
+                 COM = auc.comedian, RMDsh = auc.rmd_sh)
+    }
+  
+  return(val)
+}
+
+nsim <- 100
+
+df_auc_models_met <- data.frame()
+
+for(i in 1:length(datasets_models)){
+  set.seed(1221)
+  result <- metAB_AUC(datasets_models[i], param = c(n = 200, outlier_rate = 0.1), nsim = nsim)
+  df_auc_models_met <- rbind(df_auc_models_met, result)
+}
+
+df_auc_models_met["model"] <- rep(datasets_models, each=nsim)
+saveRDS(df_auc_models_met, "results/data/election_OM.rds")
+
+election_OM_summary <- election_OM %>%
+  group_by(model) %>%
+  summarise(across(everything(), \(x) mean(x, na.rm = TRUE)))
+
+election_OM_summary_long <- election_OM_summary %>%
+  pivot_longer(cols = -model, names_to = "variable", values_to = "mean_value") %>%
+  mutate(variable = factor(variable, levels = names(election_OM_summary)[-1]))
+
+election_OM_bp <- ggplot(election_OM_summary_long, aes(x = variable, y = mean_value)) +
+  geom_boxplot() +
+  labs(x = "", y = "Mean AUC") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave("plot_election_OM_bp.pdf", 
+       plot = election_OM_bp,
+       path = "results/plots", width = 7, height = 2.75, device = "pdf")
+
+# sm1 <- simulation_model1()
+# sm1_data <- sm1$data
+# sm1_out <- sm1$true_outliers
+# sm1_ind <- ind_all(sm1_data) %>% dplyr::select(ABEI, ABHI, ABEI_d, ABHI_d, ABEI_d2, ABHI_d2)
+# 
+# metAB_AUC("simulation_model1", param=c(n = 200, outlier_rate = 0.1), nsim = 3)
