@@ -89,7 +89,7 @@ election_ind_bp <- ggplot(election_summary_long, aes(x = variable, y = mean_valu
 
 ggsave("plot_election_ind_bp.pdf", 
        plot = election_ind_bp,
-       path = "results/plots", width = 7, height = 2.75, device = "pdf")
+       path = "results/plots", width = 7, height = 4, device = "pdf")
 
 
 
@@ -121,7 +121,6 @@ metAB_AUC <- function(model, param, nsim=20){
       data.frame(FASTMCD = auc.mcd, FASTMCDAdj = auc.adjq_mcd, OGK = auc.ogk,
                  COM = auc.comedian, RMDsh = auc.rmd_sh)
     }
-  
   return(val)
 }
 
@@ -132,33 +131,16 @@ df_auc_models_met <- data.frame()
 for(i in 1:length(datasets_models)){
   set.seed(1221)
   result <- metAB_AUC(datasets_models[i], param = c(n = 200, outlier_rate = 0.1), nsim = nsim)
-  df_auc_models_met <- rbind(df_auc_models_met, result)
+  df_auc_models <- rbind(df_auc_models_met, result)
 }
 
-df_auc_models_met["model"] <- rep(datasets_models, each=nsim)
-saveRDS(df_auc_models_met, "results/data/election_OM.rds")
+df_auc_models["model"] <- rep(datasets_models, each=nsim)
+saveRDS(df_auc_models, "results/data/election_indices.rds")
 
-election_OM_summary <- election_OM %>%
-  group_by(model) %>%
-  summarise(across(everything(), \(x) mean(x, na.rm = TRUE)))
 
-election_OM_summary_long <- election_OM_summary %>%
-  pivot_longer(cols = -model, names_to = "variable", values_to = "mean_value") %>%
-  mutate(variable = factor(variable, levels = names(election_OM_summary)[-1]))
 
-election_OM_bp <- ggplot(election_OM_summary_long, aes(x = variable, y = mean_value)) +
-  geom_boxplot() +
-  labs(x = "", y = "Mean AUC") +
-  theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-ggsave("plot_election_OM_bp.pdf", 
-       plot = election_OM_bp,
-       path = "results/plots", width = 7, height = 2.75, device = "pdf")
-
-# sm1 <- simulation_model1()
-# sm1_data <- sm1$data
-# sm1_out <- sm1$true_outliers
-# sm1_ind <- ind_all(sm1_data) %>% dplyr::select(ABEI, ABHI, ABEI_d, ABHI_d, ABEI_d2, ABHI_d2)
-# 
-# metAB_AUC("simulation_model1", param=c(n = 200, outlier_rate = 0.1), nsim = 3)
+sm1 <- simulation_model1()
+sm1_data <- sm1$data
+sm1_out <- sm1$true_outliers
+sm1_ind <- ind_all(sm1_data) %>% dplyr::select(ABEI, ABHI, ABEI_d, ABHI_d, ABEI_d2, ABHI_d2)
+get_outliers_multivariate(sm1_ind, method = "rmd_sh")
