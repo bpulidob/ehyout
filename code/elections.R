@@ -124,23 +124,40 @@ metAB_AUC <- function(model, param, nsim=20){
   return(val)
 }
 
-nsim <- 100
+nsim <- 200
 
+Sys.time()
 df_auc_models_met <- data.frame()
 
 for(i in 1:length(datasets_models)){
-  set.seed(1221)
+  set.seed(777)
   result <- metAB_AUC(datasets_models[i], param = c(n = 200, outlier_rate = 0.1), nsim = nsim)
-  df_auc_models <- rbind(df_auc_models_met, result)
+  df_auc_models_met <- rbind(df_auc_models_met, result)
 }
 
-df_auc_models["model"] <- rep(datasets_models, each=nsim)
-saveRDS(df_auc_models, "results/data/election_indices.rds")
+df_auc_models_met["model"] <- rep(datasets_models, each=nsim)
+saveRDS(df_auc_models_met, "results/data/election_OM.rds")
+Sys.time()
+#Lo he lanzado "2025-03-28 13:12:58 CET"
+# Terminado> "2025-03-28 13:20:44 CET"
 
+election_OM <- readRDS("~/ehyout/results/data/election_OM.rds")
+# Compute mean of each column grouped by 'model'
+election_summary <- election_OM %>%
+  group_by(model) %>%
+  summarise(across(everything(), \(x) mean(x, na.rm = TRUE)))
 
+#Boxplot for indices combinations
+election_summary_long <- election_summary %>%
+  pivot_longer(cols = -model, names_to = "variable", values_to = "mean_value") %>%
+  mutate(variable = factor(variable, levels = names(election_summary)[-1]))
 
-sm1 <- simulation_model1()
-sm1_data <- sm1$data
-sm1_out <- sm1$true_outliers
-sm1_ind <- ind_all(sm1_data) %>% dplyr::select(ABEI, ABHI, ABEI_d, ABHI_d, ABEI_d2, ABHI_d2)
-get_outliers_multivariate(sm1_ind, method = "rmd_sh")
+election_OM_bp <- ggplot(election_summary_long, aes(x = variable, y = mean_value)) +
+  geom_boxplot() +
+  labs(x = "", y = "Mean AUC") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave("plot_election_ind_bp.pdf", 
+       plot = election_ind_bp,
+       path = "results/plots", width = 7, height = 4, device = "pdf")
