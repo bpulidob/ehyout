@@ -53,3 +53,27 @@ ind_all <- function(dataset){
   
   return(sm_tf)
 }
+
+# Calculate area-based indices on data, first and second derivatives only for AB indices
+indAB <- function(dataset){
+  library(tf)
+  
+  if(!is.matrix(dataset)){
+    dataset <- as.matrix(dataset)
+  }
+  
+  sm_tf <- tfd(data = dataset, evaluator = tf_approx_spline)
+  sm_tf <- tibble::tibble(dat = sm_tf,
+                          deriv = tf_derive(sm_tf), # first derivatives
+                          deriv2 = tf_derive(sm_tf, order=2)) # second derivatives
+  
+  sm_tf <- tibble::tibble(ABEI=sm_tf$dat |> as.matrix() |> ABEI(),
+                          ABHI=sm_tf$dat |> as.matrix() |> ABHI(),
+                          ABEI_d=sm_tf$deriv |> as.matrix() |> ABEI(),
+                          ABHI_d=sm_tf$deriv |> as.matrix() |> ABHI(),
+                          ABEI_d2=sm_tf$deriv2 |> as.matrix() |> ABEI(),
+                          ABHI_d2=sm_tf$deriv2 |> as.matrix() |> ABHI()
+  )
+  
+  return(sm_tf)
+}
