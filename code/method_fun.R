@@ -1,0 +1,353 @@
+source("code/muod_cpp.R")
+source("code/data_generation.R")
+source("code/OutGram.R")
+source("code/OutGramAdj.R")
+path <- "code/multivariate_outliers_meth"
+files.sources = list.files(path)
+sapply(paste0(path, "/", files.sources), source)
+
+
+# devtools::install_github("otsegun/fdaoutlier")
+library(fdaoutlier)
+library(dplyr)
+library(tidyfun)
+library(mltools)
+
+calculate_rates <- function(true_outliers, detected_outliers, total_obs) {
+  
+  # Identify true positives, false positives, true negatives, false negatives
+  tp <- sum(detected_outliers %in% true_outliers)
+  # print(tp)
+  fp <- sum(!detected_outliers %in% true_outliers)
+  # print(fp)
+  fn <- sum(!(true_outliers %in% detected_outliers))
+  #print(fn)
+  tn <- total_obs - (tp + fp + fn)
+  
+  # Calculate true positive rate (TPR) and false positive rate (FPR)
+  
+  tpr <- tp / (tp + fn)
+  tnr <- tn / (tn + fp)
+  fpr <- fp / (fp + tn)
+  
+  # Calculate Accuracy
+  
+  ac <- (tn+tp)/total_obs
+  
+  # Calculate Balanced Accuray (BA)
+  
+  ba <- (tpr+tnr)/2
+  
+  # Calculate F1 score
+  
+  precision <- tp / (tp+fp)
+  f1 <- 2*(precision * tpr) / (precision + tpr)
+  
+  # Calculate mcc: Matthews correlation coefficient
+  
+  s1 <- tp + fp
+  s2 <- tp + fn
+  s3 <- tn + fp
+  s4 <- tn + fn
+  mcc_den <- sqrt(s1*s2*s3*s4)
+  vmcc <- (tp*tn - fp*fn)/mcc_den
+  
+  # Return a named list with TPR, FPR, F1 score and MCC
+  result <- list(TPR = tpr, FPR = fpr, AC = ac, BA = ba, F1 = f1, MCC = vmcc)
+  return(result)
+}
+
+
+add_rank_column <- function(data, var_name) {
+  require(dplyr)
+  
+  # Check if the variable exists in the dataframe
+  if (!var_name %in% colnames(data)) {
+    stop("Variable not found in the dataframe.")
+  }
+  
+  dnames <- names(data)
+  # Add the rank column to the dataframe
+  data_var <- data[, var_name]
+  vrank <-  rank(-data_var)
+  data <- cbind(data, vrank)
+  names(data) <- c(dnames, paste0("Rank_", var_name))
+  return(data)
+}
+
+MMoutlier_detect_comp <- function(sm_d, sm_o){
+  
+  nr <- nrow(sm_d)
+  df <- data.frame()
+  if(typeof(sm_d) == "list"){
+    sm_d <- as.matrix(sm_d)
+  }
+  sm_ind <- indM(sm_d)
+  
+  # indM + multivariate methods
+  
+  multivariate_methods <- c("mcd", "adjq_mcd", "ogk", "comedian","rmd_sh",
+                            "adj_rmd", "mahalanobis", "lof")
+  
+  for(met in multivariate_methods){
+    t0 <- Sys.time()
+    multivariate_output <- get_outliers_multivariate(sm_ind, method = met)
+    t1 <- Sys.time()
+    outlier_time <- as.numeric(t1 - t0, units="secs")
+    outlier_rates <- calculate_rates(sm_o, multivariate_output$outliers, nr)
+    auc_multiv <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), multivariate_output$values)
+    df_multivariate <- data.frame(TPR = outlier_rates$TPR,
+                                  FPR = outlier_rates$FPR,
+                                  F1 = outlier_rates$F1,
+                                  MCC = outlier_rates$MCC,
+                                  AC = outlier_rates$AC,
+                                  BA = outlier_rates$BA,
+                                  AUC = auc_multiv,
+                                  Time = outlier_time)
+    df <- as.data.frame(rbind(df, df_multivariate))
+  }
+  
+  # Outliergram
+  
+  t0 <- Sys.time()
+  outgram_output <- OutGram(sm_d, plotting = FALSE)
+  t1 <- Sys.time()
+  outlier_time_og <- as.numeric(t1 - t0, units="secs")
+  outlier_rates_og <- calculate_rates(sm_o, outgram_output$outliers, nr)
+  auc_og <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), outgram_output$dist)
+  
+  # Adjusted Outliergram
+  
+  t0 <- Sys.time()
+  outgramAdj_output <- OutGramAdj(sm_d, plotting = FALSE)
+  t1 <- Sys.time()
+  outlier_time_aog <- as.numeric(t1 - t0, units="secs")
+  outlier_rates_aog <- calculate_rates(sm_o, outgramAdj_output$outliers, nr)
+  auc_aog <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), outgramAdj_output$dist)
+  
+  # MS Plot
+  
+  t0 <- Sys.time()
+  generated_outliers <- fdaoutlier::msplot(sm_d, seed = 1221, plot = FALSE)$outliers
+  t1 <- Sys.time()
+  outlier_time_ms <- as.numeric(t1 - t0, units="secs")
+  outlier_rates_ms <- calculate_rates(sm_o, generated_outliers, nr)
+  
+  # TVD
+  
+  t0 <- Sys.time()
+  generated_outliers <- fdaoutlier::tvdmss(sm_d, emp_factor_mss = 3)$outliers
+  t1 <- Sys.time()
+  outlier_time_tvd <- as.numeric(t1 - t0, units="secs")
+  outlier_rates_tvd <- calculate_rates(sm_o, generated_outliers, nr)
+  
+  # MBD
+  
+  t0 <- Sys.time()
+  bp_output <- fdaoutlier::functional_boxplot(sm_d, depth_method = "mbd")
+  t1 <- Sys.time()
+  outlier_time_mbd <- as.numeric(t1 - t0, units="secs")
+  outlier_rates_mbd <- calculate_rates(sm_o, bp_output$outliers, nr)
+  auc_mbd <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), bp_output$depth_values)
+  
+  # MDS-LOF Methods
+  
+  t0 <- Sys.time()
+  mdslof_output <- outlier_mds_lof(sm_d)
+  t1 <- Sys.time()
+  outlier_time_mdslof <- as.numeric(t1 - t0, units="secs")
+  outlier_rates_mdslof <- calculate_rates(sm_o, mdslof_output$outliers, nr)
+  auc_mdslof <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), mdslof_output$values)
+  
+  t0 <- Sys.time()
+  mdslof5_output <- outlier_mds_lof(sm_d, embed_dim = 5)
+  t1 <- Sys.time()
+  outlier_time_mdslof5 <- as.numeric(t1 - t0, units="secs")
+  outlier_rates_mdslof5 <- calculate_rates(sm_o, mdslof5_output$outliers, nr)
+  auc_mdslof5 <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), mdslof5_output$values)
+  
+  t0 <- Sys.time()
+  mdslofl10_output <- outlier_mds_lof(sm_d, metric = "minkowski", p = 10)
+  t1 <- Sys.time()
+  outlier_time_mdslofl10 <- as.numeric(t1 - t0, units="secs")
+  outlier_rates_mdslofl10 <- calculate_rates(sm_o, mdslofl10_output$outliers, nr)
+  auc_mdslofl10 <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), mdslofl10_output$values)
+  
+  t0 <- Sys.time()
+  mdslof5l10_output <- outlier_mds_lof(sm_d, metric = "minkowski", p = 10, embed_dim = 5)
+  t1 <- Sys.time()
+  outlier_time_mdslof5l10 <- as.numeric(t1 - t0, units="secs")
+  outlier_rates_mdslof5l10 <- calculate_rates(sm_o, mdslof5l10_output$outliers, nr)
+  auc_mdslof5l10 <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), mdslof5l10_output$values)
+  
+  # JV
+  
+  # PWD
+  t0 <- Sys.time()
+  jv1_output <- outlier_jv(sm_d)
+  t1 <- Sys.time()
+  outlier_time_pwd <- as.numeric(t1 - t0, units="secs")
+  outlier_rates_pwd <- calculate_rates(sm_o, jv1_output$outliers, nr)
+  auc_pwd <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), jv1_output$values)
+  
+  # BP-PWD
+  t0 <- Sys.time()
+  jv2_output <- outlier_jv(sm_d, magnitude = TRUE)
+  t1 <- Sys.time()
+  outlier_time_bp_pwd <- as.numeric(t1 - t0, units="secs")
+  outlier_rates_bp_pwd <- calculate_rates(sm_o, jv2_output$outliers, nr)
+  # auc_bp_pwd <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), jv2_output$values) # jv2_output$values do not have the same number of entries as nrow(sm_d) because we filter the dataset after applying boxplot technique
+  
+  df_multivariate <- data.frame(TPR = c(outlier_rates_og$TPR, outlier_rates_aog$TPR, outlier_rates_ms$TPR, outlier_rates_tvd$TPR, outlier_rates_mbd$TPR,
+                                        outlier_rates_mdslof$TPR, outlier_rates_mdslof5$TPR, outlier_rates_mdslofl10$TPR, outlier_rates_mdslof5l10$TPR,
+                                        outlier_rates_pwd$TP, outlier_rates_bp_pwd$TPR),
+                                FPR = c(outlier_rates_og$FPR, outlier_rates_aog$FPR, outlier_rates_ms$FPR, outlier_rates_tvd$FPR, outlier_rates_mbd$FPR,
+                                        outlier_rates_mdslof$FPR, outlier_rates_mdslof5$FPR, outlier_rates_mdslofl10$FPR, outlier_rates_mdslof5l10$FPR,
+                                        outlier_rates_pwd$FPR, outlier_rates_bp_pwd$FPR),
+                                F1 = c(outlier_rates_og$F1, outlier_rates_aog$F1, outlier_rates_ms$F1, outlier_rates_tvd$F1, outlier_rates_mbd$F1,
+                                       outlier_rates_mdslof$F1, outlier_rates_mdslof5$F1, outlier_rates_mdslofl10$F1, outlier_rates_mdslof5l10$F1,
+                                       outlier_rates_pwd$F1, outlier_rates_bp_pwd$F1),
+                                MCC = c(outlier_rates_og$MCC, outlier_rates_aog$MCC, outlier_rates_ms$MCC, outlier_rates_tvd$MCC, outlier_rates_mbd$MCC,
+                                        outlier_rates_mdslof$MCC, outlier_rates_mdslof5$MCC, outlier_rates_mdslofl10$MCC, outlier_rates_mdslof5l10$MCC,
+                                        outlier_rates_pwd$MCC, outlier_rates_bp_pwd$MCC),
+                                AC = c(outlier_rates_og$AC, outlier_rates_aog$AC, outlier_rates_ms$AC, outlier_rates_tvd$AC, outlier_rates_mbd$AC,
+                                       outlier_rates_mdslof$AC, outlier_rates_mdslof5$AC, outlier_rates_mdslofl10$AC, outlier_rates_mdslof5l10$AC,
+                                       outlier_rates_pwd$AC, outlier_rates_bp_pwd$AC),
+                                BA = c(outlier_rates_og$BA, outlier_rates_aog$BA, outlier_rates_ms$BA, outlier_rates_tvd$BA, outlier_rates_mbd$BA,
+                                       outlier_rates_mdslof$BA, outlier_rates_mdslof5$BA, outlier_rates_mdslofl10$BA, outlier_rates_mdslof5l10$BA,
+                                       outlier_rates_pwd$BA, outlier_rates_bp_pwd$BA),
+                                AUC = c(auc_og, auc_aog, NA, NA, auc_mbd, auc_mdslof, auc_mdslof, auc_mdslofl10, auc_mdslof5l10, auc_pwd, NA),
+                                Time = c(outlier_time_og, outlier_time_aog, outlier_time_ms, outlier_time_tvd, outlier_time_mbd, outlier_time_mdslof,
+                                         outlier_time_mdslof5, outlier_time_mdslofl10, outlier_time_mdslof5l10, outlier_time_pwd, outlier_time_bp_pwd))
+  # print(df_multivariate)
+  df <- as.data.frame(rbind(df, df_multivariate))
+  
+  return(as.data.frame(cbind(Method = c("indM-MCD", "indM-AdjQ_MCD", "indM-OGK",
+                                        "indM-Comedian", "indM-RMD_sh", "indM-Adj_RMD",
+                                        "indM-Mahalanobis", "indM-LOF","OG", "AOG", "MSPLT",
+                                        "TVD", "MBD", "LOF", "MDS5LOF", "LOFl10", "MDS5LOFl10",
+                                        "PWD", "BP-PWD"),
+                             df)))
+}
+
+MMoutlier_detect_muod <- function(sm_d, sm_o){
+  
+  nr <- nrow(sm_d)
+  
+  df <- data.frame()
+  
+  # MOUD type methods
+  methods <- c("rcpp", "fast", "fast_l1", "semifast")
+  
+  for(met in methods){
+    
+    t0 <- Sys.time()
+    outliers_type <- get_outliers(t(sm_d), method = met, cut_method = "boxplot",
+                                  n_core = 1)
+    t1 <- Sys.time()
+    
+    otlier_type_time <- as.numeric(t1 - t0, units="secs")
+    
+    generated_outliers <- union(union(outliers_type$shape,
+                                      outliers_type$amplitude),
+                                outliers_type$magnitude)
+    outlier_type_rates <- calculate_rates(sm_o, generated_outliers, nr)
+    
+    df_type <- data.frame(TPR = outlier_type_rates$TPR,
+                          FPR = outlier_type_rates$FPR,
+                          F1 = outlier_type_rates$F1,
+                          MCC = outlier_type_rates$MCC,
+                          AC = outlier_type_rates$AC,
+                          BA = outlier_type_rates$BA,
+                          AUC = NA,
+                          Time = otlier_type_time)
+    df <- as.data.frame(rbind(df, df_type))
+  }
+  
+  return(as.data.frame(cbind(Method = c("MUOD", "FST", "FSTL1", "SF"), df)))
+}
+
+# MMoutlier_detect_comp("simulation_model1",  param = c(n = 200, p = 100, outlier_rate = or))
+
+MMoutlier_detect_sim <- function(model, name, param=NULL, nsim = 50, na.rm = TRUE, seed = NULL){
+  
+  set.seed(seed)
+  
+  df <- data.frame()
+  fun_model <- match.fun(model)
+  
+  for(s in 1:nsim){
+    #print(s)
+    param_model <- c(param, seed = s)
+    model_out <- rlang::exec(fun_model, !!!param_model)
+    sm_d <- model_out$data
+    #print(class(sm_d))
+    sm_o <- model_out$true_outliers
+    df_muod <- MMoutlier_detect_muod(sm_d, sm_o)
+    
+    #df_other <- MMoutlier_detect_comp(sm_d, sm_o)
+    df <- rbind(df, df_muod)
+  }
+  #for(s in 1:nsim){
+  #   print(s)
+  
+  val <-
+    foreach(s = 1:nsim, .combine = rbind) %dopar% {
+      
+      param_model <- c(param, seed = s)
+      model_out <- rlang::exec(fun_model, !!!param_model)
+      sm_d <- model_out$data
+      sm_o <- model_out$true_outliers
+      MMoutlier_detect_comp(sm_d, sm_o)
+      # df <- rbind(df, MMoutlier_detect_comp(sm_d, sm_o))
+    }
+  
+  df <- rbind(df, val)
+  
+  method_order <- c("MUOD", "FST", "FSTL1", "SF",
+                    "indM-MCD", "indM-AdjQ_MCD",
+                    "indM-OGK","indM-Comedian", "indM-RMD_sh", "indM-Adj_RMD",
+                    "indM-Mahalanobis", "indM-LOF","OG", "AOG", "MSPLT",
+                    "TVD", "MBD", "LOF", "MDS5LOF", "LOFl10", "MDS5LOFl10",
+                    "PWD", "BP-PWD")
+  
+  
+  #dataset$variable <- factor(dataset$variable, levels = rev(unique(dataset$variable)), ordered=TRUE)
+  df$Method <- factor(df$Method, levels = method_order)
+  
+  saveRDS(df, file = paste0("results/", name, "_long", ".rds"))
+  
+  result <- df %>%
+    group_by(Method) %>%
+    summarise(
+      TPR_m = mean(TPR, na.rm = na.rm),
+      TPR_med = median(TPR, na.rm = na.rm),
+      TPR_sd = sd(TPR, na.rm = na.rm),
+      FPR_m = mean(FPR, na.rm = na.rm),
+      FPR_med = median(FPR, na.rm = na.rm),
+      FPR_sd = sd(FPR, na.rm = na.rm),
+      F1_m = mean(F1, na.rm = na.rm),
+      F1_med = median(F1, na.rm = na.rm),
+      F1_sd = sd(F1, na.rm = na.rm),
+      MCC_m = mean(MCC, na.rm = na.rm),
+      MCC_med = median(MCC, na.rm = na.rm),
+      MCC_sd = sd(MCC, na.rm = na.rm),
+      AC_m = mean(AC, na.rm = na.rm),
+      AC_med = median(AC, na.rm = na.rm),
+      AC_sd = sd(AC, na.rm = na.rm),
+      BA_m = mean(BA, na.rm = na.rm),
+      BA_med = median(BA, na.rm = na.rm),
+      BA_sd = sd(BA, na.rm = na.rm),
+      BM_m = mean(2*BA-1, na.rm = na.rm),
+      BM_med = median(2*BA-1, na.rm = na.rm),
+      BM_sd = sd(2*BA-1, na.rm = na.rm),
+      AUC_m = mean(AUC, na.rm = na.rm),
+      AUC_med = median(AUC, na.rm = na.rm),
+      AUC_sd = sd(AUC, na.rm = na.rm),
+      Time_m = mean(Time),
+      Time_med = median(Time),
+      Time_sd = sd(Time)
+    )
+  
+  return(as.data.frame(result))
+}
