@@ -10,6 +10,13 @@ sapply(paste0(path, "/", files.sources), source)
 # devtools::install_github("otsegun/fdaoutlier")
 library(fdaoutlier)
 library(dplyr)
+# install.packages("pak", repos = sprintf(
+#   "https://r-lib.github.io/p/pak/stable/%s/%s/%s",
+#   .Platform$pkgType,
+#   R.Version()$os,
+#   R.Version()$arch
+# ))
+# pak::pak("tidyfun/tidyfun")
 library(tidyfun)
 library(mltools)
 
@@ -82,9 +89,9 @@ MMoutlier_detect_comp <- function(sm_d, sm_o){
   if(typeof(sm_d) == "list"){
     sm_d <- as.matrix(sm_d)
   }
-  sm_ind <- indM(sm_d)
+  sm_ind <- indAB(sm_d)
   
-  # indM + multivariate methods
+  # indAB + multivariate methods
   
   multivariate_methods <- c("mcd", "adjq_mcd", "ogk", "comedian","rmd_sh",
                             "adj_rmd", "mahalanobis", "lof")
@@ -222,9 +229,9 @@ MMoutlier_detect_comp <- function(sm_d, sm_o){
   # print(df_multivariate)
   df <- as.data.frame(rbind(df, df_multivariate))
   
-  return(as.data.frame(cbind(Method = c("indM-MCD", "indM-AdjQ_MCD", "indM-OGK",
-                                        "indM-Comedian", "indM-RMD_sh", "indM-Adj_RMD",
-                                        "indM-Mahalanobis", "indM-LOF","OG", "AOG", "MSPLT",
+  return(as.data.frame(cbind(Method = c("indAB-MCD", "indAB-AdjQ_MCD", "indAB-OGK",
+                                        "indAB-Comedian", "indAB-RMD_sh", "indAB-Adj_RMD",
+                                        "indAB-Mahalanobis", "indAB-LOF","OG", "AOG", "MSPLT",
                                         "TVD", "MBD", "LOF", "MDS5LOF", "LOFl10", "MDS5LOFl10",
                                         "PWD", "BP-PWD"),
                              df)))
@@ -305,9 +312,9 @@ MMoutlier_detect_sim <- function(model, name, param=NULL, nsim = 50, na.rm = TRU
   df <- rbind(df, val)
   
   method_order <- c("MUOD", "FST", "FSTL1", "SF",
-                    "indM-MCD", "indM-AdjQ_MCD",
-                    "indM-OGK","indM-Comedian", "indM-RMD_sh", "indM-Adj_RMD",
-                    "indM-Mahalanobis", "indM-LOF","OG", "AOG", "MSPLT",
+                    "indAB-MCD", "indAB-AdjQ_MCD",
+                    "indAB-OGK","indAB-Comedian", "indAB-RMD_sh", "indAB-Adj_RMD",
+                    "indAB-Mahalanobis", "indAB-LOF","OG", "AOG", "MSPLT",
                     "TVD", "MBD", "LOF", "MDS5LOF", "LOFl10", "MDS5LOFl10",
                     "PWD", "BP-PWD")
   
@@ -350,4 +357,121 @@ MMoutlier_detect_sim <- function(model, name, param=NULL, nsim = 50, na.rm = TRU
     )
   
   return(as.data.frame(result))
+}
+
+outlier_lof <- function(data, nrow_data, min_pts_ratio = .75, cutoff = .9){
+  
+  data_lof <- dbscan::lof(data, minPts = min_pts_ratio*nrow_data)
+  data_lof_cutoff <- quantile(data_lof, cutoff)
+  
+  data_lof_pos <- data.frame(Position = 1:nrow_data,
+                             LOF = data_lof) %>%
+    arrange(LOF) %>%
+    filter(LOF > data_lof_cutoff)
+  
+  return(list("values"=data_lof, "outliers"=data_lof_pos$Position))
+}
+
+outlier_mds_lof <- function(dataset, metric = "euclidean",
+                            # min_pts_ratio taken from "geometric perspective on functional outlier detection"
+                            min_pts_ratio = .75,
+                            embed_dim = 0, cutoff = .9, ...) {
+  distances <- as.matrix(dist(dataset, method = metric, ...))
+  if(embed_dim > 0){
+    #get metric MDS coordinates & use L2-distance in embedding space
+    embeddings <- cmdscale(distances, k = embed_dim)
+    distances <- as.matrix(dist(embeddings))
+  }
+  
+  distances_lof <- outlier_lof(distances, nrow(distances), min_pts_ratio, cutoff)
+  return(list("values"=distances_lof$values,"outliers"=distances_lof$outliers))
+}
+
+combinat <- function(n,p){
+  if(n<p){
+    combinat=0
+  }else{
+    combinat=exp(lfactorial(n)-(lfactorial(p)+lfactorial(n-p)))
+  }
+}
+
+outlier_jv <- function(sm_d, magnitude = FALSE){
+  
+  # Generate an index vector for rows
+  idx <- data.frame(pos = 1:nrow(sm_d), out = rep(0, nrow(sm_d)))
+  
+  data <- t(sm_d)
+  
+  if(magnitude){
+    # magnitude outliers
+    fb <- fda::fbplot(data,plot=F)
+    m_outliers <- fb$outpoint
+    if(length(m_outliers) > 0){
+      idx[m_outliers, "out"] <- 1
+      # shape outliers
+      data <- data[,-m_outliers]
+    }
+  }
+  
+  N <- dim(data)[2]
+  P <- dim(data)[1]
+  
+  # fb <- fda::fbplot(data, plot=F)
+  # fb_depth <- fb$depth
+  # med <- which(fb_depth == max(fb_depth))
+  Pw.rank <- as.matrix(t(apply(data,1,rank)))
+  n_a <- N-Pw.rank
+  n_b <- Pw.rank-1
+  Pw.depth <- as.matrix(((n_a*n_b)+N-1)/combinat(N,2))
+  
+  Pair.Pw.depth=matrix(NaN,nrow =(P-1),ncol = 2*N)
+  for (i in 1:N) {
+    Pair.Pw.depth[,(2*i-1)]= Pw.depth[1:(P-1),i]
+    Pair.Pw.depth[,(2*i)]= Pw.depth[2:P,i]
+  }
+  
+  prod.var <- matrix(0, ncol = 1, nrow = (dim(Pair.Pw.depth)[2]/2))
+  for (i in 1:(dim(Pair.Pw.depth)[2]/2)) {
+    prod.var[i,]=var(Pair.Pw.depth[,(2*i-1)])*var(Pair.Pw.depth[,(2*i)])
+  }
+  
+  # Bivariate Distribution of Non-Outlying curves
+  corr <- matrix(0,ncol = 1,nrow = (dim(Pair.Pw.depth)[2]/2))
+  for (i in 1:(dim(Pair.Pw.depth)[2]/2)) {
+    if( prod.var[i,]!=0){
+      corr[i,] <- cor(Pair.Pw.depth[,(2*i-1)],Pair.Pw.depth[,(2*i)])
+    }else{
+      corr[i,] <- 0
+    }
+  }
+  
+  # Boxplot of sample correlation
+  # lw <- boxplot.stats(corr)[[1]][1] # extreme of the lower whisker
+  # s_outliers <- as.vector(which(corr <= lw))
+  ts.c2 <- matrix(0,ncol = 1,nrow = (dim(Pair.Pw.depth)[2]/2))
+  for (i in 1:(dim(Pair.Pw.depth)[2]/2)) {
+    if( prod.var[i,]!=0){
+      ts.c2[i,] <- abs(corr[i,]-1)/sd(corr)
+    }
+    else{
+      ts.c2[i,] <- abs(-1)/sd(corr)
+    }
+    
+    
+  } 
+  
+  sup_limit <- boxplot.stats(ts.c2)[[1]][5] # extreme of the upper whisker
+  s_outliers <- as.vector(which(ts.c2 >= sup_limit))
+  
+  idx_shape <- idx[idx$out == 0, ]
+  idx_shape["index"] <- 1:nrow(idx_shape)
+  idx_shape[idx_shape$index %in% s_outliers, "out"] <- 1
+  
+  if(magnitude){
+    outliers <- sort(c(m_outliers, idx_shape[idx_shape$out == 1, "pos"]))
+  }else{
+    outliers <- idx_shape[idx_shape$out == 1, "pos"]
+  }
+  
+  return(list("values"=ts.c2,"outliers"=outliers))
 }

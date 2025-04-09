@@ -1,10 +1,13 @@
-
+library(foreach)
+library(doParallel)
+library(fda)
 
 source("~/ehyout/code/indices.R")
 source("~/ehyout/code/method_fun.R")
+source("~/ehyout/code/multivariate_outliers_meth/outlier_multivariate_load_all.R")
 
 parallel::detectCores() #20
-doParallel::registerDoParallel(cores = 10)
+doParallel::registerDoParallel(cores = 15)
 
 no <- 200 # number of observations
 nsim = 100 # number of simulations
@@ -12,11 +15,11 @@ seed = 1221
 det <- TRUE
 
 for(i in 1:10){
-  df_or <- data.frame(Method = c("MUOD", "FST", "FSTL1", "SF", "indM-MCD",
-                                 "indM-AdjQ_MCD", "indM-Comedian",
-                                 "indM-RMD_sh", "indM-Adj_RMD",
-                                 "indM-Mahalanobis", "indM-LOF",
-                                 "indM-OGK","OG", "AOG", "MSPLT",
+  df_or <- data.frame(Method = c("MUOD", "FST", "FSTL1", "SF", "indAB-MCD",
+                                 "indAB-AdjQ_MCD", "indAB-Comedian",
+                                 "indAB-RMD_sh", "indAB-Adj_RMD",
+                                 "indAB-Mahalanobis", "indAB-LOF",
+                                 "indAB-OGK","OG", "AOG", "MSPLT",
                                  "TVD", "MBD", "LOF", "MDS5LOF", "LOFl10", "MDS5LOFl10",
                                  "PWD", "BP-PWD"))
   model <- paste0("simulation_model",i)
@@ -48,11 +51,11 @@ for(i in 1:10){
 for(v in 1:2){
   
   
-  df_or <- data.frame(Method = c("MUOD", "FST", "FSTL1", "SF", "indM-MCD",
-                                 "indM-AdjQ_MCD", "indM-Comedian",
-                                 "indM-RMD_sh", "indM-Adj_RMD",
-                                 "indM-Mahalanobis", "indM-LOF",
-                                 "indM-OGK","OG", "AOG", "MSPLT",
+  df_or <- data.frame(Method = c("MUOD", "FST", "FSTL1", "SF", "indAB-MCD",
+                                 "indAB-AdjQ_MCD", "indAB-Comedian",
+                                 "indAB-RMD_sh", "indAB-Adj_RMD",
+                                 "indAB-Mahalanobis", "indAB-LOF",
+                                 "indAB-OGK","OG", "AOG", "MSPLT",
                                  "TVD", "MBD", "LOF", "MDS5LOF", "LOFl10", "MDS5LOFl10",
                                  "PWD", "BP-PWD"))
   
@@ -84,11 +87,11 @@ for(v in 1:2){
 }
 
 
-df_or <- data.frame(Method = c("MUOD", "FST", "FSTL1", "SF", "indM-MCD",
-                               "indM-AdjQ_MCD", "indM-Comedian",
-                               "indM-RMD_sh", "indM-Adj_RMD",
-                               "indM-Mahalanobis", "indM-LOF",
-                               "indM-OGK","OG", "AOG", "MSPLT",
+df_or <- data.frame(Method = c("MUOD", "FST", "FSTL1", "SF", "indAB-MCD",
+                               "indAB-AdjQ_MCD", "indAB-Comedian",
+                               "indAB-RMD_sh", "indAB-Adj_RMD",
+                               "indAB-Mahalanobis", "indAB-LOF",
+                               "indAB-OGK","OG", "AOG", "MSPLT",
                                "TVD", "MBD", "LOF", "MDS5LOF", "LOFl10", "MDS5LOFl10",
                                "PWD", "BP-PWD"))
 
