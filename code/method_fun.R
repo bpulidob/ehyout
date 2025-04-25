@@ -47,8 +47,9 @@ calculate_rates <- function(true_outliers, detected_outliers, total_obs) {
   
   # Calculate F1 score
   
-  precision <- tp / (tp+fp)
-  f1 <- 2*(precision * tpr) / (precision + tpr)
+  # precision <- tp / (tp+fp)
+  # f1 <- 2*(precision * tpr) / (precision + tpr) # if precision not null
+  f1 <- 2*tp / (2*tp + fn + fp)
   
   # Calculate mcc: Matthews correlation coefficient
   
