@@ -89,10 +89,10 @@ for(v in 1:2){
 
 
 df_or <- data.frame(Method = c("MUOD", "FST", "FSTL1", "SF", "indAB-MCD",
-                               "indAB-AdjQ_MCD", "indAB-Comedian",
+                               "indAB-AdjQ_MCD", "indAB-OGK", "indAB-Comedian",
                                "indAB-RMD_sh", "indAB-Adj_RMD",
                                "indAB-Mahalanobis", "indAB-LOF",
-                               "indAB-OGK","OG", "AOG", "MSPLT",
+                               "OG", "AOG", "MSPLT",
                                "TVD", "MBD", "LOF", "MDS5LOF", "LOFl10", "MDS5LOFl10",
                                "PWD", "BP-PWD"))
 
