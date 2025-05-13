@@ -203,7 +203,8 @@ summary_table_y <- function(y_var, outlier_rate = 0.1){
                     # "table_am1_100.rds", "table_am2_100.rds",
                     "table_jv1100.rds", "table_jv2100.rds", "table_jv3100.rds",
                     "table_jv4100.rds", "table_jv5100.rds",
-                    "table_sn1100.rds", "table_sn2100.rds", "table_sphere100.rds")
+                    "table_sn1100.rds", "table_sn2100.rds")
+                    #, "table_sphere100.rds")
   
   methods_to_include <- c("MUOD", "indAB-OGK", "indAB-Comedian", "OG", "MSPLT", 
                           "TVD", "MBD", "MDS5LOF", "BP-PWD")
@@ -287,7 +288,7 @@ df_long <- as.data.frame(st_BAf) %>%
 # Plot the boxplot
 BA_bp <- ggplot(df_long, aes(x = variable, y = value)) +
   geom_boxplot() +
-  theme_half_open() +
+  #theme_half_open() +
   labs(x = "",y = "Mean BA")
 
 
@@ -311,7 +312,7 @@ BM_MCC_bp <- ggplot(df_longBM_MCC, aes(x = factor(variable,
                                        y = value, fill = type)) +
   geom_boxplot() +
   # ylim(-1,1) +
-  theme_half_open() +
+  # theme_half_open() +
   labs(x = "",y = "", fill="Metric")
 
 ggsave(paste0("results/boxplots/bp_BM_MCC_0.1.pdf"), BM_MCC_bp,

@@ -16,11 +16,10 @@ seed = 1221
 det <- TRUE
 
 for(i in 1:10){
-  df_or <- data.frame(Method = c("MUOD", "FST", "FSTL1", "SF", "indAB-MCD",
-                                 "indAB-AdjQ_MCD", "indAB-Comedian",
-                                 "indAB-RMD_sh", "indAB-Adj_RMD",
-                                 "indAB-Mahalanobis", "indAB-LOF",
-                                 "indAB-OGK","OG", "AOG", "MSPLT",
+  df_or <- data.frame(Method = c("MUOD", "FST", "FSTL1", "SF",
+                                 "indAB-MCD", "indAB-AdjQ_MCD",
+                                 "indAB-OGK","indAB-Comedian", "indAB-RMD_sh", "indAB-Adj_RMD",
+                                 "indAB-Mahalanobis", "indAB-LOF","OG", "AOG", "MSPLT",
                                  "TVD", "MBD", "LOF", "MDS5LOF", "LOFl10", "MDS5LOFl10",
                                  "PWD", "BP-PWD"))
   model <- paste0("simulation_model",i)
@@ -52,11 +51,10 @@ for(i in 1:10){
 for(v in 1:2){
   
   
-  df_or <- data.frame(Method = c("MUOD", "FST", "FSTL1", "SF", "indAB-MCD",
-                                 "indAB-AdjQ_MCD", "indAB-Comedian",
-                                 "indAB-RMD_sh", "indAB-Adj_RMD",
-                                 "indAB-Mahalanobis", "indAB-LOF",
-                                 "indAB-OGK","OG", "AOG", "MSPLT",
+  df_or <- data.frame(Method = c("MUOD", "FST", "FSTL1", "SF",
+                                 "indAB-MCD", "indAB-AdjQ_MCD",
+                                 "indAB-OGK","indAB-Comedian", "indAB-RMD_sh", "indAB-Adj_RMD",
+                                 "indAB-Mahalanobis", "indAB-LOF","OG", "AOG", "MSPLT",
                                  "TVD", "MBD", "LOF", "MDS5LOF", "LOFl10", "MDS5LOFl10",
                                  "PWD", "BP-PWD"))
   
@@ -88,11 +86,10 @@ for(v in 1:2){
 }
 
 
-df_or <- data.frame(Method = c("MUOD", "FST", "FSTL1", "SF", "indAB-MCD",
-                               "indAB-AdjQ_MCD", "indAB-OGK", "indAB-Comedian",
-                               "indAB-RMD_sh", "indAB-Adj_RMD",
-                               "indAB-Mahalanobis", "indAB-LOF",
-                               "OG", "AOG", "MSPLT",
+df_or <- data.frame(Method = c("MUOD", "FST", "FSTL1", "SF",
+                               "indAB-MCD", "indAB-AdjQ_MCD",
+                               "indAB-OGK","indAB-Comedian", "indAB-RMD_sh", "indAB-Adj_RMD",
+                               "indAB-Mahalanobis", "indAB-LOF","OG", "AOG", "MSPLT",
                                "TVD", "MBD", "LOF", "MDS5LOF", "LOFl10", "MDS5LOFl10",
                                "PWD", "BP-PWD"))
 
@@ -247,8 +244,8 @@ for(or in c(0.1, 0.05, 0.01)){
   df_jv5_or <- cbind(df_jv5_or, df_jv5[,-1])
   
   df_sphere <- MMoutlier_detect_sim(sphere_dat, name = paste0("table_sphere_", or),
-                                    param = c(n = no, outlier_rate = or, nbasis = 17,
-                                              snr = 22, scale_out = 1.3),
+                                    param = c(n = no, outlier_rate = or, nbasis = 25,
+                                              snr = 30, scale_out = 1.1),
                                     nsim = nsim, seed = seed)
   
   # Rank based on mean values

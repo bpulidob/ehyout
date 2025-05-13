@@ -283,7 +283,7 @@ MMoutlier_detect_comp <- function(sm_d, sm_o){
   return(final_df)
 }
 
-MMoutlier_detect_muod <- function(sm_d, sm_o, n_core = 1){
+MMoutlier_detect_muod <- function(sm_d, sm_o, n_core = 3){
   
   nr <- nrow(sm_d)
   results_list <- list()

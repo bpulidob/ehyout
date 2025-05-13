@@ -94,6 +94,7 @@ load_and_prepare_data <- function(outlier_rate,
       stop("Invalid outlier rate: ", outlier_rate)
     }
     
+    print(end_col)
     # Select the relevant block of columns including 'Method' (column 1 if 1-based)
     # Using indices based on example table (col 1 is index, col 2 is Method)
     if (names(file_read)[1] == "Method") { # If Method is the very first column
@@ -161,7 +162,7 @@ load_and_prepare_data <- function(outlier_rate,
   return(final_data)
 }
 
-TARGET_OR_MAIN <- 0.05
+TARGET_OR_MAIN <- 0.1
 
 # Load data for the target OR
 main_paper_data <- load_and_prepare_data(outlier_rate = TARGET_OR_MAIN)
