@@ -80,7 +80,7 @@ plot_mcc_specific_dgps <- ggplot(mcc_subset_data,
   geom_boxplot(outlier.size = 0.5, notch = FALSE,
                position = position_dodge(width = 0.85)) + # Adjust width as needed
   # Use a palette suitable for 5 categories
-  scale_fill_brewer(palette = "Accent") + #  "Set2", "Set3", "Accent", "Pastel1"
+  scale_fill_brewer(palette = "Pastel1") + #  "Set2", "Set3", "Accent", "Pastel1"
   #scale_fill_viridis_d(guide = "none") +
   # scale_fill_viridis_d(option="C") + # Viridis alternative
   labs(
@@ -214,7 +214,7 @@ p_log_time <- ggplot(summary_df, aes(x = Mean_Time, y = Mean_MCC, color = Method
   labs(
     # title = "Performance Comparison: Mean MCC vs. Mean Time (Log Scale)",
     # subtitle = "Error bars represent Interquartile Range (IQR) of MCC for each Method",
-    x = "Mean ET (seconds, log scale)", # Updated x-axis label
+    x = "Mean Time (seconds, log scale)", # Updated x-axis label
     y = "Mean MCC",
     color = "Method"
   ) +
