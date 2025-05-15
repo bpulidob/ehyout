@@ -38,7 +38,8 @@ lines_plot <- function(model, param = NULL, seed = NULL, order = 0, title = NULL
   plt <- ggplot(dat_df, aes(x = x, y = y, group = id, color = factor(outlier))) + 
     geom_line(linewidth=0.2) +
     scale_color_manual(values=c("#999999", "#FF0000")) +
-    theme_classic(base_size = 5) +
+    #theme_classic(base_size = 5) +
+    theme_minimal(base_size = 5) +
     theme(legend.position = "none") +
     ggtitle(title)
   
@@ -74,7 +75,7 @@ ind_plot <- function(model, param = NULL, seed = NULL,
     ggplot2::scale_color_manual(values=c("#999999", "#FF0000"))+
     ggplot2::xlab("Order") +
     ggplot2::ylab(ylab_text) +
-    ggplot2::theme_classic() +
+    ggplot2::theme_minimal() +
     ggplot2::theme(legend.position = "none")
   
   return(plt)
@@ -95,7 +96,7 @@ ind_plot_combine2 <- function(model, param = NULL, seed = NULL, type = c("_", "d
     plt <- ggplot(sm_tf) +
       geom_point(aes(x=ABEI,y=ABHI, colour=factor(out)), size=0.5)+
       scale_color_manual(values=c("#999999", "#FF0000"))+
-      theme_classic() +
+      theme_minimal() +
       theme(legend.position = "none")
   } else if(type == "d"){
     plt <- ggplot(sm_tf) +

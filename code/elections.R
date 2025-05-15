@@ -84,7 +84,7 @@ election_summary_long <- election_summary %>%
 election_ind_bp <- ggplot(election_summary_long, aes(x = variable, y = mean_value)) +
   geom_boxplot() +
   labs(x = "", y = "Mean AUC") +
-  theme_classic() +
+  theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ggsave("plot_election_ind_bp.pdf", 
@@ -155,9 +155,9 @@ election_summary_long <- election_summary %>%
 election_OM_bp <- ggplot(election_summary_long, aes(x = variable, y = mean_value)) +
   geom_boxplot() +
   labs(x = "", y = "Mean AUC") +
-  theme_classic() +
+  theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-ggsave("plot_election_ind_bp.pdf", 
-       plot = election_ind_bp,
+ggsave("plot_election_om_bp.pdf", 
+       plot = election_OM_bp,
        path = "results/plots", width = 7, height = 4, device = "pdf")

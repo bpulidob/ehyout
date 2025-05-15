@@ -54,69 +54,57 @@ jv1_AB <- ind_plot_combine2(jv_data1, param = c(n = 200, deterministic = TRUE,
 ggsave("plot_AB_jv1.pdf", plot = jv1_AB,
        path = "results/plots", width = 7, height = 4, device = "pdf")
 
-# Data generation
 
-# covfunexp <- function(gridpoints, alpha, beta, nu){
-#   d_matrix <- as.matrix(dist(gridpoints, upper = T, diag = T))
-#   return(alpha*exp(-beta*(d_matrix^nu)))
-# }
 
-# set.seed(123)
-# 
-# n <- 50
-# p <- 100
-# cov_alpha <- 1
-# cov_beta <- 1
-# cov_nu <- 1
-# mu <- 4
-# tt <- seq(0, 1, length.out = p)
-# covfun <- covfunexp(tt, cov_alpha, cov_beta, cov_nu)
-# muu <- mu * tt
-# L <- chol(covfun)
-# e <- matrix(rnorm(n * p), nrow = p, ncol = n)
-# y <- muu + t(L) %*% e
-# y <- t(y)
-# yl7 <- y[7,]
-# y <- as.data.frame(y)
-# y_ind <- ind_all(y)
-# y_ind$ABEI[7] #52.13895
-# 
-# # colnames(y) <- tt
-# 
-# # MAGNITUDE
-# y2 <- y
-# y2[51, ] <- 3*y[7, ]
-# 
-# y2_ind <- ind_all(y2)
-# y2_ind$ABEI[7] #58.08825
-# y2_ind$ABEI[51] #0.449684
-# p1 <- plt_curves_out(y2, 0.5, 6.5, "y(t) = 3x(t)")
-# p2 <- plt_indices_out(y2)
-# p3 <- plt_indices_out(y2, "ABHI")
-# 
-# y2b <- y
-# y2b[7, ] <- 3*y[7, ]
-# y2b_ind <- ind_all(y2b)
-# y2b_ind$ABEI[7] # 0.4586777
-# 
-# # SHAPE
-# y3 <- y
-# y3[51, ] <- y[7,]+(1.5*tt+0.5)^2
-# p4 <- plt_curves_out(y3,  0.3, 5, "y(t) = x(t) + h(t)")
-# p5 <- plt_indices_out(y3)
-# p6 <- plt_indices_out(y3,"ABHI")
-# plt_indices_out(y3,"MEI")
-# # AMPLITUDE -
-# y4 <- y
-# y4[51, ] <- y[7, ]-3
-# p7 <- plt_curves_out(y4, 0.75, -2, "y(t) = x(t) - 3")
-# p8 <- plt_indices_out(y4)
-# p9 <- plt_indices_out(y4, "ABHI")
-# plt_indices_out(y4, "MHI")
-# # AMPLITUDE +
-# y5 <- y
-# y5[51, ] <- y[7, ]+3
-# p10 <- plt_curves_out(y5, 0.4, 6, "y(t) = x(t) + 3")
-# p11 <- plt_indices_out(y5)
-# p12 <- plt_indices_out(y5, "ABHI")
-# plt_indices_out(y5, "MEI")
+# Data plots
+
+for(i in 1:10){
+  lplt <- lines_plot(paste0("simulation_model",i), param = c(n = 200, deterministic = TRUE, 
+                                    outlier_rate = 0.1, p = 100, seed = 1),
+                   seed = 1221)
+  ggsave(paste0("results/plots/lineplots/lp_simulation_model", i, "_0.1.pdf"), lplt, width = 10, height = 6, units = "in")
+}
+
+lplt <- lines_plot(hm_dat,
+                   param = c(n = 200, deterministic = TRUE, 
+                             outlier_rate = 0.1, p = 100, seed = 1), seed = 1221)
+ggsave(paste0("results/plots/lineplots/hm_0.1.pdf"), lplt, width = 10, height = 6, units = "in")
+
+lplt <- lines_plot(sn_data1,
+                   param = c(n = 200, deterministic = TRUE,
+                             outlier_rate = 0.1, p = 100, seed = 1),  seed = 1221)
+ggsave(paste0("results/plots/lineplots/sn1_0.1.pdf"), lplt, width = 10, height = 6, units = "in")
+
+lplt <- lines_plot(sn_data2,
+                   param = c(n = 200, deterministic = TRUE,                                      
+                             outlier_rate = 0.1, p = 100, seed = 1), seed = 1221)
+ggsave(paste0("results/plots/lineplots/sn2_0.1.pdf"), lplt, width = 10, height = 6, units = "in")
+
+lplt <- lines_plot(jv_data1,
+                   param = c(n = 200, deterministic = TRUE,                                      
+                             outlier_rate = 0.1, p = 100, seed = 1),  seed = 1221)
+ggsave(paste0("results/plots/lineplots/jv1_0.1.pdf"), lplt, width = 10, height = 6, units = "in")
+
+lplt <- lines_plot(jv_data2,
+                   param = c(n = 200, deterministic = TRUE,                                      
+                             outlier_rate = 0.1, p = 100, seed = 1), seed = 1221)
+ggsave(paste0("results/plots/lineplots/jv2_0.1.pdf"), lplt, width = 10, height = 6, units = "in")
+
+lplt <- lines_plot(jv_data3,
+                   param = c(n = 200, deterministic = TRUE,                                      
+                             outlier_rate = 0.1, p = 100, seed = 1),  seed = 1221)
+ggsave(paste0("results/plots/lineplots/jv3_0.1.pdf"), lplt, width = 10, height = 6, units = "in")
+
+lplt <- lines_plot(jv_data4,
+                   param = c(n = 200, deterministic = TRUE,                                      
+                             outlier_rate = 0.1, p = 100, seed = 1), seed = 1221)
+ggsave(paste0("results/plots/lineplots/jv4_0.1.pdf"), lplt, width = 10, height = 6, units = "in")
+
+lplt <- lines_plot(jv_data5,
+                   param = c(n = 200, deterministic = TRUE,                                      
+                             outlier_rate = 0.1, p = 100, seed = 1),  seed = 1221)
+ggsave(paste0("results/plots/lineplots/jv5_0.1.pdf"), lplt, width = 10, height = 6, units = "in")
+
+lplt <- lines_plot(sphere_dat,  
+                   param = c(n = 200, outlier_rate = 0.1),  seed = 1224)
+ggsave(paste0("results/plots/lineplots/sphere_0.1.pdf"), lplt, width = 10, height = 6, units = "in")
