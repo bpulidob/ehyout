@@ -2,6 +2,7 @@ source("~/ehyout/code/indices.R")
 library(fdaoutlier)
 library(dplyr)
 library(tidyr)
+library(tf)
 #library(tidyfun)
 
 lines_plot <- function(model, param = NULL, seed = NULL, order = 0, title = NULL){
