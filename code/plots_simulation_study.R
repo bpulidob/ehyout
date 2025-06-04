@@ -161,7 +161,7 @@ plot_boxplot_median_mcc <- ggplot(median_mcc_data,
 
 ggsave("plot_bp_median_MCC.pdf", 
        plot = plot_boxplot_median_mcc,
-       path = "results/plots", width = 7, height = 3.5, device = "pdf")
+       path = "results/plots", width = 7, height = 4.5, device = "pdf")
 
 
 
