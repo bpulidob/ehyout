@@ -33,7 +33,8 @@ lines_plot <- function(model, param = NULL, seed = NULL, order = 0, title = NULL
   
   # Add outlier information
   dat_df <- dat_df %>%
-    mutate(outlier = id %in% model_out$true_outliers)
+    mutate(outlier = id %in% model_out$true_outliers) %>%
+    arrange(desc(outlier))
   
   # Create the plot
   plt <- ggplot(dat_df, aes(x = x, y = y, group = id, color = factor(outlier))) + 

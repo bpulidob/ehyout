@@ -81,11 +81,17 @@ election_summary_long <- election_summary %>%
   pivot_longer(cols = -model, names_to = "variable", values_to = "mean_value") %>%
   mutate(variable = factor(variable, levels = names(election_summary)[-1]))
 
-election_ind_bp <- ggplot(election_summary_long, aes(x = variable, y = mean_value)) +
+# election_ind_bp <- ggplot(election_summary_long, aes(x = variable, y = mean_value)) +
+#   geom_boxplot() +
+#   labs(x = "", y = "Mean AUC") +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+election_ind_bp <- ggplot(election_summary_long, aes(x = mean_value, y = variable)) +
   geom_boxplot() +
-  labs(x = "", y = "Mean AUC") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  labs(x = "Mean AUC", y = "") +
+  theme_minimal()# +
+  #theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ggsave("plot_election_ind_bp.pdf", 
        plot = election_ind_bp,

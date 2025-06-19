@@ -13,7 +13,7 @@ jv1_d2_0.1 <- lines_plot(jv_data1, param = c(n = 200, deterministic = TRUE,
                                             outlier_rate = 0.1, p = 100, seed = 1),  
                         seed = 1, order = 2, title = "Second derivatives")
 
-ggsave("plot_jv1_0.1.pdf", 
+ggsave("plot_jv1_0.1b.pdf", 
        plot = gridExtra::grid.arrange(jv1_0.1, jv1_d_0.1, jv1_d2_0.1, 
                                       nrow = 1, ncol = 3),
        path = "results/plots", width = 7, height = 2.75, device = "pdf")

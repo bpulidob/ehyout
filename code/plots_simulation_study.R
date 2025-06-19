@@ -116,6 +116,87 @@ ggsave("plot_DGPs_MCC.pdf",
        plot = final_plot,
        path = "results/plots", width = 14, height = 8, device = "pdf")
 
+# --- MODIFIED PLOT CODE: Group by DGP, Color by Method ---
+
+# Define a reusable function to create the MCC plot for a given set of DGPs.
+# This fixes the bug where only one plot configuration was being used for p1, p2, p3, and p4.
+create_mcc_plot_by_dgp <- function(selected_dgps, full_data, method_levels, plot_subtitle) {
+  
+  # Filter data for the specific DGPs and metric
+  plot_data <- full_data %>%
+    filter(
+      Metric == "MCC",
+      DGP %in% selected_dgps
+    ) %>%
+    mutate(
+      # Ensure factor levels are correctly ordered for plotting
+      Method = factor(Method, levels = method_levels),
+      DGP = factor(DGP, levels = selected_dgps)
+    )
+  
+  # Create the plot
+  ggplot(plot_data,
+         # MODIFICATION 1: Group by DGP on X-axis, and fill/color by Method.
+         aes(x = DGP, y = Value, fill = Method)) +
+    # Create dodged boxplots: one box per Method for each DGP.
+    geom_boxplot(outlier.size = 0.5, notch = FALSE,
+                 position = position_dodge(width = 0.9)) + # position_dodge is key for grouping
+    # MODIFICATION 2: Use the "Set2" color palette for methods, as requested.
+    scale_fill_brewer(palette = "Set2") +
+    labs(
+      title = NULL, # Main title will be added later by patchwork
+      subtitle = plot_subtitle,
+      # MODIFICATION 3: Update axis and legend labels to reflect the new grouping.
+      x = "",
+      y = "MCC",
+      fill = "Method" 
+    ) +
+    theme_minimal(base_size = 14) +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 11),
+      plot.subtitle = element_text(hjust = 0.5, size = 13),
+      # The legend will be collected and placed by patchwork
+      legend.position = "bottom" 
+    )
+}
+
+# Define the groups of DGPs for the four plots
+dgp_group1 <- c("DGP1", "DGP2", "DGP3", "DGP4", "DGP9")
+dgp_group2 <- c("DGP5", "DGP6", "DGP7", "DGP8", "DGP10")
+dgp_group3 <- c("DGP12", "DGP13", "DGP14", "DGP15", "DGP16")
+dgp_group4 <- c("DGP11", "DGP17", "DGP18", "DGP19")
+
+subtitle1 <- "Magnitude outliers"
+subtitle2 <- "Shape outliers"
+subtitle3 <- "Complex shape and magnitude outliers"
+subtitle4 <- "Complex shape outliers"
+
+# Generate each of the four plots by calling the new function
+p1 <- create_mcc_plot_by_dgp(dgp_group1, results_long, method_levels, subtitle1)
+p2 <- create_mcc_plot_by_dgp(dgp_group2, results_long, method_levels, subtitle2)
+p3 <- create_mcc_plot_by_dgp(dgp_group3, results_long, method_levels, subtitle3)
+p4 <- create_mcc_plot_by_dgp(dgp_group4, results_long, method_levels, subtitle4)
+
+# Combine the plots using patchwork, adding a common title and a single shared legend
+final_plot <- (p1 + p2) / (p3 + p4) +
+  plot_layout(guides = "collect") + # Collects legends from all plots into one
+  plot_annotation(
+    # title = "MCC Performance Comparison by Method across DGPs",
+    theme = theme(
+      plot.title = element_text(hjust = 0.5, face = "bold", size = 18),
+      legend.position = "bottom" # Position the shared legend at the bottom
+    )
+  ) & # The '&' applies the following theme modifications to all subplots
+  theme(legend.key.size = unit(0.4, 'cm')) # Optional: Adjust legend key size
+
+# Display the final plot
+# print(final_plot)
+
+# Save the final combined plot
+ggsave("plot_DGPs_MCC_grouped_by_DGP.pdf", 
+       plot = final_plot,
+       path = "results/plots", width = 14, height = 10, device = "pdf")
+
 
 results_long_factored <- results_long %>%
   mutate(
