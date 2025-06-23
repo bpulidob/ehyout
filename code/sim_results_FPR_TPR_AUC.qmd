@@ -1,0 +1,81 @@
+---
+title: "TPR -FPR  -AUC"
+format: 
+  html:
+    html-table-processing: none
+    fontsize: "0.8em"
+    max-width: "50em"
+self-contained: true
+---
+
+## Alpha 0.05
+
+```{r}
+#| results: "asis"
+library(tidyverse)
+
+sim <- 1:10
+for (s in sim) {
+  sim_file <- paste0("results/table_simulation_model", s, "_0.05_long.rds")
+  
+   sim <- readRDS(here::here(sim_file)) |>
+    group_by(Method) |>
+    summarize(
+      TPR = list(summary(TPR) %>% {as.list(.)[-c(1,4,6)]}),
+      FPR = list(summary(FPR) %>% {as.list(.)[-c(1,4,6)]}),
+      AUC = list(summary(AUC) %>% {as.list(.)[-c(1,4,6)]})
+    ) |>
+    unnest_wider(c(TPR, FPR, AUC), names_sep = "_")
+  cat(paste0("<br><br><em><strong> DGP ", s, " at alpha .05</strong></em><br>"))
+  print(gt::gt(sim) |> gt::fmt_number(decimals = 2) |> gt::opt_table_font(size = "8"))
+}
+```
+
+## Alpha 0.01
+
+```{r}
+#| results: "asis"
+library(tidyverse)
+
+sim <- 1:10
+
+for (s in sim) {
+  sim_file <- paste0("results/table_simulation_model", s, "_0.01_long.rds")
+  
+   sim <- readRDS(here::here(sim_file)) |>
+    group_by(Method) |>
+    summarize(
+      TPR = list(summary(TPR) %>% {as.list(.)[-c(1,4,6)]}),
+      FPR = list(summary(FPR) %>% {as.list(.)[-c(1,4,6)]}),
+      AUC = list(summary(AUC) %>% {as.list(.)[-c(1,4,6)]})
+    ) |>
+    unnest_wider(c(TPR, FPR, AUC), names_sep = "_")
+  cat(paste0("<br><br><em><strong> DGP ", s, " at alpha .05</strong></em><br>"))
+  print(gt::gt(sim) |> gt::fmt_number(decimals = 2) |> gt::opt_table_font(size = "8"))
+}
+```
+
+
+## Alpha 0.10
+
+```{r}
+#| results: "asis"
+library(tidyverse)
+
+sim <- 1:10
+
+for (s in sim) {
+  sim_file <- paste0("results/table_simulation_model", s, "_0.1_long.rds")
+  
+   sim <- readRDS(here::here(sim_file)) |>
+    group_by(Method) |>
+    summarize(
+      TPR = list(summary(TPR) %>% {as.list(.)[-c(1,4,6)]}),
+      FPR = list(summary(FPR) %>% {as.list(.)[-c(1,4,6)]}),
+      AUC = list(summary(AUC) %>% {as.list(.)[-c(1,4,6)]})
+    ) |>
+    unnest_wider(c(TPR, FPR, AUC), names_sep = "_")
+  cat(paste0("<br><br><em><strong> DGP ", s, " at alpha .05</strong></em><br>"))
+  print(gt::gt(sim) |> gt::fmt_number(decimals = 2) |> gt::opt_table_font(size = "8"))
+}
+```
