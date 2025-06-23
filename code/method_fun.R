@@ -115,7 +115,8 @@ MMoutlier_detect_comp <- function(sm_d, sm_o){
     outlier_time <- as.numeric(t1 - t0, units="secs")
     outlier_rates <- calculate_rates(sm_o, multivariate_output$outliers, nr)
     
-    auc_multiv <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), multivariate_output$values)
+    auc_multiv <- max(Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), multivariate_output$values),
+                      Metrics::auc(multivariate_output$values, as.integer(1:nrow(sm_d) %in% sm_o)))
     results_list[[display_name]] <- data.frame(
       Method = display_name,
       TPR = outlier_rates$TPR,
@@ -137,7 +138,8 @@ MMoutlier_detect_comp <- function(sm_d, sm_o){
   t1 <- Sys.time()
   outlier_time_og <- as.numeric(t1 - t0, units="secs")
   outlier_rates_og <- calculate_rates(sm_o, outgram_output$outliers, nr)
-  auc_og <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), outgram_output$dist)
+  auc_og <- max(Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), outgram_output$dist),
+                Metrics::auc(outgram_output$dist, as.integer(1:nrow(sm_d) %in% sm_o)))
   results_list[["OG"]] <- data.frame(Method = "OG", TPR = outlier_rates_og$TPR, 
                                      FPR = outlier_rates_og$FPR, F1 = outlier_rates_og$F1, 
                                      MCC = outlier_rates_og$MCC, AC = outlier_rates_og$AC, 
@@ -152,7 +154,8 @@ MMoutlier_detect_comp <- function(sm_d, sm_o){
   t1 <- Sys.time()
   outlier_time_aog <- as.numeric(t1 - t0, units="secs")
   outlier_rates_aog <- calculate_rates(sm_o, outgramAdj_output$outliers, nr)
-  auc_aog <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), outgramAdj_output$dist)
+  auc_aog <- max(Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), outgramAdj_output$dist),
+                 Metrics::auc(outgramAdj_output$dist, as.integer(1:nrow(sm_d) %in% sm_o)))
   results_list[["AOG"]] <- data.frame(Method = "AOG", TPR = outlier_rates_aog$TPR, 
                                       FPR = outlier_rates_aog$FPR, F1 = outlier_rates_aog$F1, 
                                       MCC = outlier_rates_aog$MCC, AC = outlier_rates_aog$AC, 
@@ -193,7 +196,8 @@ MMoutlier_detect_comp <- function(sm_d, sm_o){
   t1 <- Sys.time()
   outlier_time_mbd <- as.numeric(t1 - t0, units="secs")
   outlier_rates_mbd <- calculate_rates(sm_o, bp_output$outliers, nr)
-  auc_mbd <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), bp_output$depth_values)
+  auc_mbd <- max(Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), bp_output$depth_values),
+                 Metrics::auc(bp_output$depth_values, as.integer(1:nrow(sm_d) %in% sm_o)))
   results_list[["MBD"]] <- data.frame(Method = "MBD", TPR = outlier_rates_mbd$TPR, 
                                       FPR = outlier_rates_mbd$FPR, F1 = outlier_rates_mbd$F1, 
                                       MCC = outlier_rates_mbd$MCC, AC = outlier_rates_mbd$AC, 
@@ -207,7 +211,8 @@ MMoutlier_detect_comp <- function(sm_d, sm_o){
   t1 <- Sys.time()
   outlier_time_mdslof <- as.numeric(t1 - t0, units="secs")
   outlier_rates_mdslof <- calculate_rates(sm_o, mdslof_output$outliers, nr)
-  auc_mdslof <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), mdslof_output$values)
+  auc_mdslof <- max(Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), mdslof_output$values),
+                    Metrics::auc(mdslof_output$values, as.integer(1:nrow(sm_d) %in% sm_o)))
   results_list[["LOF"]] <- data.frame(Method = "LOF", TPR = outlier_rates_mdslof$TPR, 
                                       FPR = outlier_rates_mdslof$FPR, F1 = outlier_rates_mdslof$F1, 
                                       MCC = outlier_rates_mdslof$MCC, AC = outlier_rates_mdslof$AC, 
@@ -219,7 +224,8 @@ MMoutlier_detect_comp <- function(sm_d, sm_o){
   t1 <- Sys.time()
   outlier_time_mdslof5 <- as.numeric(t1 - t0, units="secs")
   outlier_rates_mdslof5 <- calculate_rates(sm_o, mdslof5_output$outliers, nr)
-  auc_mdslof5 <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), mdslof5_output$values)
+  auc_mdslof5 <- max(Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), mdslof5_output$values),
+                     Metrics::auc(mdslof5_output$values, as.integer(1:nrow(sm_d) %in% sm_o)))
   results_list[["MDS5LOF"]] <- data.frame(Method = "MDS5LOF", TPR = outlier_rates_mdslof5$TPR, 
                                           FPR = outlier_rates_mdslof5$FPR, F1 = outlier_rates_mdslof5$F1,
                                           MCC = outlier_rates_mdslof5$MCC, AC = outlier_rates_mdslof5$AC, 
@@ -231,7 +237,8 @@ MMoutlier_detect_comp <- function(sm_d, sm_o){
   t1 <- Sys.time()
   outlier_time_mdslofl10 <- as.numeric(t1 - t0, units="secs")
   outlier_rates_mdslofl10 <- calculate_rates(sm_o, mdslofl10_output$outliers, nr)
-  auc_mdslofl10 <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), mdslofl10_output$values)
+  auc_mdslofl10 <- max(Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), mdslofl10_output$values),
+                       Metrics::auc(mdslofl10_output$values, as.integer(1:nrow(sm_d) %in% sm_o)))
   
   results_list[["LOFl10"]] <- data.frame(Method = "LOFl10", TPR = outlier_rates_mdslofl10$TPR, 
                                          FPR = outlier_rates_mdslofl10$FPR, F1 = outlier_rates_mdslofl10$F1, 
@@ -244,7 +251,8 @@ MMoutlier_detect_comp <- function(sm_d, sm_o){
   t1 <- Sys.time()
   outlier_time_mdslof5l10 <- as.numeric(t1 - t0, units="secs")
   outlier_rates_mdslof5l10 <- calculate_rates(sm_o, mdslof5l10_output$outliers, nr)
-  auc_mdslof5l10 <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), mdslof5l10_output$values)
+  auc_mdslof5l10 <- max(Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), mdslof5l10_output$values),
+                        Metrics::auc(mdslof5l10_output$values, as.integer(1:nrow(sm_d) %in% sm_o)))
   results_list[["MDS5LOFl10"]] <- data.frame(Method = "MDS5LOFl10", TPR = outlier_rates_mdslof5l10$TPR, 
                                              FPR = outlier_rates_mdslof5l10$FPR, F1 = outlier_rates_mdslof5l10$F1, 
                                              MCC = outlier_rates_mdslof5l10$MCC, AC = outlier_rates_mdslof5l10$AC, 
@@ -259,7 +267,8 @@ MMoutlier_detect_comp <- function(sm_d, sm_o){
   t1 <- Sys.time()
   outlier_time_pwd <- as.numeric(t1 - t0, units="secs")
   outlier_rates_pwd <- calculate_rates(sm_o, jv1_output$outliers, nr)
-  auc_pwd <- Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), jv1_output$values)
+  auc_pwd <- max(Metrics::auc(as.integer(1:nrow(sm_d) %in% sm_o), jv1_output$values),
+                 Metrics::auc(jv1_output$values, as.integer(1:nrow(sm_d) %in% sm_o)))
   results_list[["PWD"]] <- data.frame(Method = "PWD", TPR = outlier_rates_pwd$TPR, 
                                       FPR = outlier_rates_pwd$FPR, F1 = outlier_rates_pwd$F1, 
                                       MCC = outlier_rates_pwd$MCC, AC = outlier_rates_pwd$AC, 

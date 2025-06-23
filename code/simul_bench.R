@@ -28,15 +28,15 @@ for(i in 1:10){
     df <- MMoutlier_detect_sim(model, name = paste0("table_simulation_model", i, "_", or),
                                param = v_param, nsim = nsim, seed = seed)
     
-    # Rank based on mean values
-    df <- add_rank_column(df, "MCC_m")
-    df <- add_rank_column(df, "AUC_m")
-    df <- add_rank_column(df, "BA_m")
-    
-    # Rank based on meddian values
-    df <- add_rank_column(df, "MCC_med")
-    df <- add_rank_column(df, "AUC_med")
-    df <- add_rank_column(df, "BA_med")
+    # # Rank based on mean values
+    # df <- add_rank_column(df, "MCC_m")
+    # df <- add_rank_column(df, "AUC_m")
+    # df <- add_rank_column(df, "BA_m")
+    # 
+    # # Rank based on meddian values
+    # df <- add_rank_column(df, "MCC_med")
+    # df <- add_rank_column(df, "AUC_med")
+    # df <- add_rank_column(df, "BA_med")
     
     df_or <- cbind(df_or, df[,-1])
     
@@ -64,15 +64,15 @@ for(v in 1:2){
                                param = v_param, nsim = nsim, seed = seed)
     
     
-    # Rank based on mean values
-    df <- add_rank_column(df, "MCC_m")
-    df <- add_rank_column(df, "AUC_m")
-    df <- add_rank_column(df, "BA_m")
-    
-    # Rank based on meddian values
-    df <- add_rank_column(df, "MCC_med")
-    df <- add_rank_column(df, "AUC_med")
-    df <- add_rank_column(df, "BA_med")
+    # # Rank based on mean values
+    # df <- add_rank_column(df, "MCC_m")
+    # df <- add_rank_column(df, "AUC_m")
+    # df <- add_rank_column(df, "BA_m")
+    # 
+    # # Rank based on meddian values
+    # df <- add_rank_column(df, "MCC_med")
+    # df <- add_rank_column(df, "AUC_med")
+    # df <- add_rank_column(df, "BA_med")
     
     df_or <- cbind(df_or, df[,-1])
     
@@ -110,15 +110,15 @@ for(or in c(0.1, 0.05, 0.01)){
                                 nsim = nsim, seed = seed)
   
   
-  # Rank based on mean values
-  df_hm <- add_rank_column(df_hm, "MCC_m")
-  df_hm <- add_rank_column(df_hm, "AUC_m")
-  df_hm <- add_rank_column(df_hm, "BA_m")
-  
-  # Rank based on meddian values
-  df_hm <- add_rank_column(df_hm, "MCC_med")
-  df_hm <- add_rank_column(df_hm, "AUC_med")
-  df_hm <- add_rank_column(df_hm, "BA_med")
+  # # Rank based on mean values
+  # df_hm <- add_rank_column(df_hm, "MCC_m")
+  # df_hm <- add_rank_column(df_hm, "AUC_m")
+  # df_hm <- add_rank_column(df_hm, "BA_m")
+  # 
+  # # Rank based on meddian values
+  # df_hm <- add_rank_column(df_hm, "MCC_med")
+  # df_hm <- add_rank_column(df_hm, "AUC_med")
+  # df_hm <- add_rank_column(df_hm, "BA_med")
   
   
   df_hm_or <- cbind(df_hm_or, df_hm[,-1])
@@ -129,15 +129,15 @@ for(or in c(0.1, 0.05, 0.01)){
                                           outlier_rate = or),
                                 nsim = nsim, seed = seed)
   
-  # Rank based on mean values
-  df_sn <- add_rank_column(df_sn, "MCC_m")
-  df_sn <- add_rank_column(df_sn, "AUC_m")
-  df_sn <- add_rank_column(df_sn, "BA_m")
-  
-  # Rank based on meddian values
-  df_sn <- add_rank_column(df_sn, "MCC_med")
-  df_sn <- add_rank_column(df_sn, "AUC_med")
-  df_sn <- add_rank_column(df_sn, "BA_med")
+  # # Rank based on mean values
+  # df_sn <- add_rank_column(df_sn, "MCC_m")
+  # df_sn <- add_rank_column(df_sn, "AUC_m")
+  # df_sn <- add_rank_column(df_sn, "BA_m")
+  # 
+  # # Rank based on meddian values
+  # df_sn <- add_rank_column(df_sn, "MCC_med")
+  # df_sn <- add_rank_column(df_sn, "AUC_med")
+  # df_sn <- add_rank_column(df_sn, "BA_med")
   
   df_sn_or <- cbind(df_sn_or, df_sn[,-1])
   
@@ -146,15 +146,15 @@ for(or in c(0.1, 0.05, 0.01)){
                                            outlier_rate = or),
                                  nsim = nsim, seed = seed)
   
-  # Rank based on mean values
-  df_sn2 <- add_rank_column(df_sn2, "MCC_m")
-  df_sn2 <- add_rank_column(df_sn2, "AUC_m")
-  df_sn2 <- add_rank_column(df_sn2, "BA_m")
-  
-  # Rank based on meddian values
-  df_sn2 <- add_rank_column(df_sn2, "MCC_med")
-  df_sn2 <- add_rank_column(df_sn2, "AUC_med")
-  df_sn2 <- add_rank_column(df_sn2, "BA_med")
+  # # Rank based on mean values
+  # df_sn2 <- add_rank_column(df_sn2, "MCC_m")
+  # df_sn2 <- add_rank_column(df_sn2, "AUC_m")
+  # df_sn2 <- add_rank_column(df_sn2, "BA_m")
+  # 
+  # # Rank based on meddian values
+  # df_sn2 <- add_rank_column(df_sn2, "MCC_med")
+  # df_sn2 <- add_rank_column(df_sn2, "AUC_med")
+  # df_sn2 <- add_rank_column(df_sn2, "BA_med")
   
   df_sn2_or <- cbind(df_sn2_or, df_sn2[,-1])
   
@@ -163,15 +163,15 @@ for(or in c(0.1, 0.05, 0.01)){
                                            outlier_rate = or),
                                  nsim = nsim, seed = seed)
   
-  # Rank based on mean values
-  df_jv1 <- add_rank_column(df_jv1, "MCC_m")
-  df_jv1 <- add_rank_column(df_jv1, "AUC_m")
-  df_jv1 <- add_rank_column(df_jv1, "BA_m")
-  
-  # Rank based on meddian values
-  df_jv1 <- add_rank_column(df_jv1, "MCC_med")
-  df_jv1 <- add_rank_column(df_jv1, "AUC_med")
-  df_jv1 <- add_rank_column(df_jv1, "BA_med")
+  # # Rank based on mean values
+  # df_jv1 <- add_rank_column(df_jv1, "MCC_m")
+  # df_jv1 <- add_rank_column(df_jv1, "AUC_m")
+  # df_jv1 <- add_rank_column(df_jv1, "BA_m")
+  # 
+  # # Rank based on meddian values
+  # df_jv1 <- add_rank_column(df_jv1, "MCC_med")
+  # df_jv1 <- add_rank_column(df_jv1, "AUC_med")
+  # df_jv1 <- add_rank_column(df_jv1, "BA_med")
   
   df_jv1_or <- cbind(df_jv1_or, df_jv1[,-1])
   
@@ -180,15 +180,15 @@ for(or in c(0.1, 0.05, 0.01)){
                                            outlier_rate = or),
                                  nsim = nsim, seed = seed)
   
-  # Rank based on mean values
-  df_jv2 <- add_rank_column(df_jv2, "MCC_m")
-  df_jv2 <- add_rank_column(df_jv2, "AUC_m")
-  df_jv2 <- add_rank_column(df_jv2, "BA_m")
-  
-  # Rank based on meddian values
-  df_jv2 <- add_rank_column(df_jv2, "MCC_med")
-  df_jv2 <- add_rank_column(df_jv2, "AUC_med")
-  df_jv2 <- add_rank_column(df_jv2, "BA_med")
+  # # Rank based on mean values
+  # df_jv2 <- add_rank_column(df_jv2, "MCC_m")
+  # df_jv2 <- add_rank_column(df_jv2, "AUC_m")
+  # df_jv2 <- add_rank_column(df_jv2, "BA_m")
+  # 
+  # # Rank based on meddian values
+  # df_jv2 <- add_rank_column(df_jv2, "MCC_med")
+  # df_jv2 <- add_rank_column(df_jv2, "AUC_med")
+  # df_jv2 <- add_rank_column(df_jv2, "BA_med")
   
   df_jv2_or <- cbind(df_jv2_or, df_jv2[,-1])
   
@@ -197,15 +197,15 @@ for(or in c(0.1, 0.05, 0.01)){
                                            outlier_rate = or),
                                  nsim = nsim, seed = seed)
   
-  # Rank based on mean values
-  df_jv3 <- add_rank_column(df_jv3, "MCC_m")
-  df_jv3 <- add_rank_column(df_jv3, "AUC_m")
-  df_jv3 <- add_rank_column(df_jv3, "BA_m")
-  
-  # Rank based on meddian values
-  df_jv3 <- add_rank_column(df_jv3, "MCC_med")
-  df_jv3 <- add_rank_column(df_jv3, "AUC_med")
-  df_jv3 <- add_rank_column(df_jv3, "BA_med")
+  # # Rank based on mean values
+  # df_jv3 <- add_rank_column(df_jv3, "MCC_m")
+  # df_jv3 <- add_rank_column(df_jv3, "AUC_m")
+  # df_jv3 <- add_rank_column(df_jv3, "BA_m")
+  # 
+  # # Rank based on meddian values
+  # df_jv3 <- add_rank_column(df_jv3, "MCC_med")
+  # df_jv3 <- add_rank_column(df_jv3, "AUC_med")
+  # df_jv3 <- add_rank_column(df_jv3, "BA_med")
   
   df_jv3_or <- cbind(df_jv3_or, df_jv3[,-1])
   
@@ -214,15 +214,15 @@ for(or in c(0.1, 0.05, 0.01)){
                                            outlier_rate = or),
                                  nsim = nsim, seed = seed)
   
-  # Rank based on mean values
-  df_jv4 <- add_rank_column(df_jv4, "MCC_m")
-  df_jv4 <- add_rank_column(df_jv4, "AUC_m")
-  df_jv4 <- add_rank_column(df_jv4, "BA_m")
-  
-  # Rank based on meddian values
-  df_jv4 <- add_rank_column(df_jv4, "MCC_med")
-  df_jv4 <- add_rank_column(df_jv4, "AUC_med")
-  df_jv4 <- add_rank_column(df_jv4, "BA_med")
+  # # Rank based on mean values
+  # df_jv4 <- add_rank_column(df_jv4, "MCC_m")
+  # df_jv4 <- add_rank_column(df_jv4, "AUC_m")
+  # df_jv4 <- add_rank_column(df_jv4, "BA_m")
+  # 
+  # # Rank based on meddian values
+  # df_jv4 <- add_rank_column(df_jv4, "MCC_med")
+  # df_jv4 <- add_rank_column(df_jv4, "AUC_med")
+  # df_jv4 <- add_rank_column(df_jv4, "BA_med")
   
   df_jv4_or <- cbind(df_jv4_or, df_jv4[,-1])
   
@@ -231,15 +231,15 @@ for(or in c(0.1, 0.05, 0.01)){
                                            outlier_rate = or),
                                  nsim = nsim, seed = seed)
   
-  # Rank based on mean values
-  df_jv5 <- add_rank_column(df_jv5, "MCC_m")
-  df_jv5 <- add_rank_column(df_jv5, "AUC_m")
-  df_jv5 <- add_rank_column(df_jv5, "BA_m")
-  
-  # Rank based on meddian values
-  df_jv5 <- add_rank_column(df_jv5, "MCC_med")
-  df_jv5 <- add_rank_column(df_jv5, "AUC_med")
-  df_jv5 <- add_rank_column(df_jv5, "BA_med")
+  # # Rank based on mean values
+  # df_jv5 <- add_rank_column(df_jv5, "MCC_m")
+  # df_jv5 <- add_rank_column(df_jv5, "AUC_m")
+  # df_jv5 <- add_rank_column(df_jv5, "BA_m")
+  # 
+  # # Rank based on meddian values
+  # df_jv5 <- add_rank_column(df_jv5, "MCC_med")
+  # df_jv5 <- add_rank_column(df_jv5, "AUC_med")
+  # df_jv5 <- add_rank_column(df_jv5, "BA_med")
   
   df_jv5_or <- cbind(df_jv5_or, df_jv5[,-1])
   
@@ -248,15 +248,15 @@ for(or in c(0.1, 0.05, 0.01)){
                                               snr = 30, scale_out = 1.1),
                                     nsim = nsim, seed = seed)
   
-  # Rank based on mean values
-  df_sphere <- add_rank_column(df_sphere, "MCC_m")
-  df_sphere <- add_rank_column(df_sphere, "AUC_m")
-  df_sphere <- add_rank_column(df_sphere, "BA_m")
-  
-  # Rank based on median values
-  df_sphere <- add_rank_column(df_sphere, "MCC_med")
-  df_sphere <- add_rank_column(df_sphere, "AUC_med")
-  df_sphere <- add_rank_column(df_sphere, "BA_med")
+  # # Rank based on mean values
+  # df_sphere <- add_rank_column(df_sphere, "MCC_m")
+  # df_sphere <- add_rank_column(df_sphere, "AUC_m")
+  # df_sphere <- add_rank_column(df_sphere, "BA_m")
+  # 
+  # # Rank based on median values
+  # df_sphere <- add_rank_column(df_sphere, "MCC_med")
+  # df_sphere <- add_rank_column(df_sphere, "AUC_med")
+  # df_sphere <- add_rank_column(df_sphere, "BA_med")
   
   df_sphere_or <- cbind(df_sphere_or, df_sphere[,-1])
   
