@@ -112,45 +112,6 @@ plt_swt2 <- ggplot(df_long_swt2, aes(x = Variable, y = Value, group = RowID, col
 ggsave("results/plots/rd_temp.pdf", plt_swt, width = 10, height = 7, units = "in")
 ggsave("results/plots/rd_prec.pdf", plt_swt2, width = 10, height = 7, units = "in")
 
-# sm_tf <- tfb(sw_prec,  k = 20); sm_tf <- tibble::tibble(sm_tf)
-# sm_tf <- dplyr::mutate(sm_tf,
-#                        out = 1:n() %in% sw_prec_ehyout
-# )
-# 
-# lines <- ggplot(sm_tf) +
-#   # x axis btween 0 and 1?
-#   geom_spaghetti(aes(y = sm_tf, col = factor(out))) +
-#   scale_color_manual(values=c("#999999", "#FF0000")) +
-#   xlab("") +
-#   ylab(" ")+
-#   ggtitle("Log Precipitation")+
-#   theme_classic()+
-#   theme(legend.position = "none")
-# 
-# ggsave("results/real_data/prec.pdf", lines, width = 10, height = 6, units = "in")
-# 
-# 
-# sm_tf_temp <- tfb(sw_temp,  k = 20); sm_tf_temp <- tibble::tibble(sm_tf_temp)
-# sm_tf_temp <- dplyr::mutate(sm_tf_temp,
-#                             out = 1:n() %in% sw_temp_ehyout
-# )
-# 
-# lines_temp <- ggplot(sm_tf_temp) +
-#   # x axis btween 0 and 1?
-#   geom_spaghetti(aes(y = sm_tf_temp, col = factor(out))) +
-#   scale_color_manual(values=c("#999999", "#FF0000")) +
-#   xlab("Time (day)") +
-#   ylab(" ")+
-#   ggtitle("Temperature")+
-#   theme_classic()+
-#   theme(legend.position = "none")
-# 
-# 
-# ggsave("results/real_data/temp.pdf", lines_temp, width = 10, height = 6, units = "in")
-# 
-
-
-
 
 #PLOTS
 
@@ -174,69 +135,13 @@ for (i in seq_along(station_names)) {
   }
 }
 
-
-
-# library(maps)
-# # library(mclust)
-# 
-# place <- spanish_weather$station_info$name
-# coordinates <- data.frame(spanish_weather$station_info$longitude,
-#                           spanish_weather$station_info$latitude)
-# rownames(coordinates)<-place
-# 
-# non_gray_indices <- which(colors != "gray")
-# filtered_coordinates <- coordinates[non_gray_indices, ]
-# filtered_colors <- colors[non_gray_indices]
-# 
-# pdf(file = "spanish_map_outliers.pdf", width = 8, height = 6)  # Adjust width and height as needed
-# 
-# maps::map('world',ylim=c(24,45),xlim=c(-20,7))
-# #points(coordinates,col=colors,pch=16, cex=2)
-# points(filtered_coordinates,col=filtered_colors,pch=16, cex=2)
-# 
-# dev.off()
-
-
-
-
-# # Create data frame with coordinates and colors
-# coordinates <- data.frame(
-#   longitude = spanish_weather$station_info$longitude,
-#   latitude = spanish_weather$station_info$latitude,
-#   station = station_names,
-#   color = colors
-# )
-# 
-# # Filter out gray points (non-outliers)
-# filtered_coordinates <- coordinates %>% filter(color != "gray")
-# 
-# # Get map data for Spain
-# world_map <- map_data("world")
-# spain_map <- subset(world_map, region == "Spain")
-# # Adjust map data to include the Canary Islands
-# canary_islands_map <- subset(world_map, subregion %in% c("Canary Islands"))
-# 
-# # Combine mainland Spain and Canary Islands maps
-# combined_map <- rbind(spain_map, canary_islands_map)
-# 
-# # Plot the map with ggplot
-# ggplot() +
-#   geom_polygon(data = spain_map, aes(x = long, y = lat, group = group), fill = "lightgray", color = "gray") +
-#   geom_point(data = filtered_coordinates, aes(x = longitude, y = latitude, color = color), size = 2) +
-#   scale_color_manual(values = c("blue" = "blue", "green" = "green", "purple" = "purple")) +
-#   theme_minimal() +
-#   labs(title = "Spanish Weather Stations and Outliers",
-#        color = "Outlier Type") +
-#   theme(legend.title = element_text(size = 10),
-#         legend.text = element_text(size = 7),
-#         panel.grid.major = element_blank(),
-#         panel.grid.minor = element_blank(),
-#         axis.title.x = element_blank(),
-#         axis.title.y = element_blank(),
-#         axis.text.x = element_blank(),
-#         axis.text.y = element_blank(),
-#         axis.ticks = element_blank())
-
+# Create data frame with coordinates and colors
+coordinates <- data.frame(
+  longitude = spanish_weather$station_info$longitude,
+  latitude = spanish_weather$station_info$latitude,
+  station = station_names,
+  color = colors
+)
 
 
 library(leaflet)
