@@ -16,4 +16,41 @@ needed to generate them is available in code folder in the following way:
 Tables in Appendix B are generated from the code in simul_bench.R and the files 
 saved in results folder as table_DGPname_100.rds and table_DGPname_100.tex
 
-The R packages and the versions used for this work are listed below:
+This project was developed using the following R packages and versions:
+
+| Package      | Version  |
+|--------------|----------|
+| cowplot      | 1.1.3    |
+| dbscan       | 1.2.2    |
+| doParallel   | 1.0.17   |
+| dplyr        | 1.1.4    |
+| ehymet       | 0.1.1    |
+| fda          | 6.2.0    |
+| fdaoutlier   | 0.2.1    |
+| foreach      | 1.5.2    |
+| ggplot2      | 3.5.1    |
+| gt           | 1.0.0    |
+| gridExtra    | 2.3      |
+| leaflet      | 2.2.2    |
+| Metrics      | 0.1.4    |
+| mltools      | 0.3.5    |
+| parallel     | 4.4.2    |
+| patchwork    | 1.3.0    |
+| pcaPP        | 2.0.5    |
+| purrr        | 1.0.4    |
+| Rcpp         | 1.0.14   |
+| rlang        | 1.1.5    |
+| robust       | 0.7.5    |
+| robustbase   | 0.99.4.1 |
+| rrcov        | 1.7.6    |
+| scales       | 1.3.0    |
+| splines      | 4.4.2    |
+| stringr      | 1.5.1    |
+| tf           | 0.3.4    |
+| tibble       | 3.2.1    |
+| tidyr        | 1.3.1    |
+| tidyfun      | 0.0.98   |
+| tidyverse    | 2.0.0    |
+| xtable       | 1.8.4    |
+
+
