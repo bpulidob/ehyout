@@ -5,6 +5,7 @@ library(ehymet)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(forcats)
 
 source("~/ehyout/code/indices.R")
 
@@ -68,6 +69,16 @@ for(i in 1:length(datasets_models)){
 df_auc_models["model"] <- rep(datasets_models, each=nsim)
 saveRDS(df_auc_models, "results/data/election_indices.rds")
 
+label_map <- c(
+  "Curves"                          = "ABoutlier._",
+  "1st Derivative"                     = "ABoutlier.d",
+  "2nd Derivative"                     = "ABoutlier.d2",
+  "Curves + 1st Derivative"         = "ABoutlier._d",
+  "Curves + 2nd Derivative"         = "ABoutlier._d2",
+  "1st & 2nd Derivatives"              = "ABoutlier.dd2",
+  "Curves, 1st & 2nd Derivatives" = "ABoutlier._dd2"
+)
+
 # Compute mean of each column grouped by 'model'
 election_summary <- election_indices %>%
   group_by(model) %>%
@@ -79,7 +90,8 @@ election_sd <- election_indices %>%
 #Boxplot for indices combinations
 election_summary_long <- election_summary %>%
   pivot_longer(cols = -model, names_to = "variable", values_to = "mean_value") %>%
-  mutate(variable = factor(variable, levels = names(election_summary)[-1]))
+  mutate(variable = factor(variable, levels = names(election_summary)[-1])) %>%
+  mutate(variable = fct_recode(variable, !!!label_map))
 
 # election_ind_bp <- ggplot(election_summary_long, aes(x = variable, y = mean_value)) +
 #   geom_boxplot() +

@@ -45,6 +45,7 @@ results_long <- results_filtered_renamed %>%
   )
 
 method_levels <- c("EHyOut", "FASTMUOD", "OG", "MSPLOT", "TVD", "MBD", "MDS5LOF", "BP-PWD")
+
 metric_levels <- c("TPR", "FPR", "AUC", "BA", "F1", "MCC", "AC", "Time")
 
 results_long <- results_long %>%
@@ -61,62 +62,6 @@ selected_dgps <- c("DGP5", "DGP6", "DGP7", "DGP8", "DGP10")
 selected_dgps <- c("DGP12", "DGP13", "DGP14", "DGP15", "DGP16")
 selected_dgps <- c("DGP11", "DGP17", "DGP18", "DGP19")
 
-mcc_subset_data <- results_long %>%
-  filter(
-    Metric == "MCC",
-    DGP %in% selected_dgps
-  ) %>%
-  mutate(
-    # Ensure Method factor uses the predefined order
-    Method = factor(Method, levels = method_levels),
-    # Ensure DGP factor uses only the selected DGPs and in the specified order
-    DGP = factor(DGP, levels = selected_dgps)
-  )
-
-plot_mcc_specific_dgps <- ggplot(mcc_subset_data,
-                                 # X is Method, Y is MCC Value, Fill distinguishes DGPs
-                                 aes(x = Method, y = Value, fill = DGP)) +
-  # Create dodged boxplots: one box per DGP for each Method
-  geom_boxplot(outlier.size = 0.5, notch = FALSE,
-               position = position_dodge(width = 0.85)) + # Adjust width as needed
-  # Use a palette suitable for 5 categories
-  scale_fill_brewer(palette = "Pastel1") + #  "Set2", "Set3", "Accent", "Pastel1"
-  #scale_fill_viridis_d(guide = "none") +
-  # scale_fill_viridis_d(option="C") + # Viridis alternative
-  labs(
-    title = "MCC Performance Comparison by DGP",
-    subtitle = paste("Showing DGPs:", paste(selected_dgps, collapse=", ")),
-    x = "",
-    y = "MCC",
-    fill = "DGP" # Legend title for DGP colors
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 9), # Rotate method names if needed
-    legend.position = "bottom",
-    plot.title = element_text(hjust = 0.5, face = "bold"),
-    plot.subtitle = element_text(hjust = 0.5)
-  ) +
-  guides(fill = guide_legend(nrow = 1)) # Arrange legend
-
-p1 <- plot_mcc_specific_dgps + labs(title = NULL)
-p2 <- plot_mcc_specific_dgps + labs(title = NULL)
-p3 <- plot_mcc_specific_dgps + labs(title = NULL)
-p4 <- plot_mcc_specific_dgps + labs(title = NULL)
-
-final_plot <- (p1 + p2) / (p3 + p4) +
-  plot_annotation(
-    # title = "MCC Performance Comparison by DGP",
-    theme = theme(
-      plot.title = element_text(hjust = 0.5, face = "bold")
-    )
-  )
-
-ggsave("plot_DGPs_MCC.pdf", 
-       plot = final_plot,
-       path = "results/plots", width = 14, height = 8, device = "pdf")
-
-# --- MODIFIED PLOT CODE: Group by DGP, Color by Method ---
 
 # Define a reusable function to create the MCC plot for a given set of DGPs.
 # This fixes the bug where only one plot configuration was being used for p1, p2, p3, and p4.
@@ -196,6 +141,97 @@ final_plot <- (p1 + p2) / (p3 + p4) +
 ggsave("plot_DGPs_MCC_grouped_by_DGP.pdf", 
        plot = final_plot,
        path = "results/plots", width = 14, height = 10, device = "pdf")
+
+
+
+## Plot AUC
+auc_method_levels <- c("EHyOut", "OG", "MSPLOT", "MDS5LOF")
+
+method_color_map <- setNames(
+  brewer.pal(n = length(method_levels), name = "Set2"), 
+  method_levels
+)
+
+results_long_auc <- results_filtered_renamed %>%
+  # Filter to keep only the relevant methods for the AUC plot
+  filter(Method %in% auc_method_levels) %>%
+  group_by(DGP, Method) %>%
+  mutate(SimulationID = row_number()) %>%
+  ungroup() %>%
+  pivot_longer(
+    cols = c(TPR, FPR, F1, MCC, AC, BA, AUC, Time),
+    names_to = "Metric",
+    values_to = "Value"
+  ) %>%
+  mutate(
+    # Set factor levels for consistent ordering and color mapping
+    Method = factor(Method, levels = auc_method_levels),
+    DGP = factor(DGP, levels = dgp_names),
+    Metric = factor(Metric), # No need to order all metrics now
+    Value = ifelse(!is.finite(Value), 0, Value)
+  )
+
+create_auc_plot_by_dgp <- function(selected_dgps, full_data, method_levels, plot_subtitle) {
+  
+  # Filter data for the specific DGPs and the AUC metric
+  plot_data <- full_data %>%
+    filter(
+      Metric == "AUC",
+      DGP %in% selected_dgps
+    ) %>%
+    mutate(
+      # Ensure factor levels are correctly ordered for plotting
+      Method = factor(Method, levels = method_levels),
+      DGP = factor(DGP, levels = selected_dgps)
+    )
+  
+  # Create the plot
+  ggplot(plot_data, aes(x = DGP, y = Value, fill = Method)) +
+    geom_boxplot(outlier.size = 0.5, notch = FALSE, position = position_dodge(width = 0.9)) +
+    # Set the y-axis range to be [0, 1] for AUC, which is standard
+    coord_cartesian(ylim = c(0, 1)) +
+    # scale_fill_brewer(palette = "Set2") +
+    scale_fill_manual(values = method_color_map) +
+    labs(
+      title = NULL,
+      subtitle = plot_subtitle,
+      x = "",
+      y = "AUC", # Changed label to AUC
+      fill = "Method" 
+    ) +
+    theme_minimal(base_size = 14) +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 11),
+      plot.subtitle = element_text(hjust = 0.5, size = 13),
+      legend.position = "bottom" 
+    )
+}
+
+# Generate each of the four AUC plots by calling the new function
+p1_auc <- create_auc_plot_by_dgp(dgp_group1, results_long_auc, auc_method_levels, subtitle1)
+p2_auc <- create_auc_plot_by_dgp(dgp_group2, results_long_auc, auc_method_levels, subtitle2)
+p3_auc <- create_auc_plot_by_dgp(dgp_group3, results_long_auc, auc_method_levels, subtitle3)
+p4_auc <- create_auc_plot_by_dgp(dgp_group4, results_long_auc, auc_method_levels, subtitle4)
+
+# Combine the plots using patchwork
+final_auc_plot <- (p1_auc + p2_auc) / (p3_auc + p4_auc) +
+  plot_layout(guides = "collect") + # Collect legends into one
+  plot_annotation(
+    theme = theme(
+      plot.title = element_text(hjust = 0.5, face = "bold", size = 18),
+      legend.position = "bottom"
+    )
+  ) &
+  theme(legend.key.size = unit(0.4, 'cm'))
+
+# Display the final plot
+print(final_auc_plot)
+
+# Save the final combined plot with a new name
+ggsave("plot_DGPs_AUC_grouped_by_DGP.pdf", 
+       plot = final_auc_plot,
+       path = "results/plots", width = 14, height = 10, device = "pdf")
+
 
 
 results_long_factored <- results_long %>%

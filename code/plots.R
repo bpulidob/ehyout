@@ -38,9 +38,9 @@ lines_plot <- function(model, param = NULL, seed = NULL, order = 0, title = NULL
   
   # Create the plot
   plt <- ggplot(dat_df, aes(x = x, y = y, group = id, color = factor(outlier))) + 
-    geom_line(linewidth=0.2) +
-    scale_color_manual(values=c("#999999", "#FF0000")) +
-    #theme_classic(base_size = 5) +
+    geom_line(linewidth=0.15) +
+   #  scale_color_manual(values=c("#999999", "#FF0000")) +
+    scale_color_manual(values = c("FALSE" = "#999999", "TRUE" = "#FF000055")) +
     theme_minimal(base_size = 5) +
     theme(legend.position = "none") +
     ggtitle(title)
