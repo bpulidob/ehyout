@@ -1,0 +1,23 @@
+
+\begin{ThreePartTable}
+\begin{TableNotes}
+\item Values are presented as Median (Standard Deviation).
+\end{TableNotes}
+\begin{longtable}{lccccccccc}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{alpha = 0.01} & \multicolumn{3}{c}{alpha = 0.05} & \multicolumn{3}{c}{alpha = 0.1} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7} \cmidrule(l{3pt}r{3pt}){8-10}
+Method & TPR & FPR & AUC & TPR & FPR & AUC & TPR & FPR & AUC\\
+\midrule
+FASTMUOD & 0.000 (0.383) & 0.000 (0.003) & NA (NA) & 0.000 (0.333) & 0.000 (0.003) & NA (NA) & 0.125 (0.332) & 0.000 (0.001) & NA (NA)\\
+EHyOut & 1.000 (0.329) & 0.000 (0.005) & 1.000 (0.052) & 0.700 (0.243) & 0.000 (0.003) & 0.992 (0.055) & 0.625 (0.317) & 0.000 (0.003) & 0.988 (0.074)\\
+OG & 0.000 (0.350) & 0.000 (0.003) & 0.783 (0.168) & 0.000 (0.234) & 0.000 (0.003) & 0.727 (0.146) & 0.000 (0.227) & 0.000 (0.004) & 0.725 (0.135)\\
+MSPLOT & 1.000 (0.310) & 0.000 (0.051) & NA (NA) & 1.000 (0.240) & 0.000 (0.056) & NA (NA) & 0.950 (0.307) & 0.000 (0.044) & NA (NA)\\
+MBD & 0.000 (0.269) & 0.000 (0.000) & 0.766 (0.166) & 0.000 (0.168) & 0.000 (0.000) & 0.738 (0.138) & 0.000 (0.133) & 0.000 (0.000) & 0.739 (0.151)\\
+\addlinespace
+MDS5LOF & 0.000 (0.175) & 0.101 (0.002) & 0.801 (0.174) & 0.000 (0.071) & 0.105 (0.004) & 0.871 (0.159) & 0.000 (0.068) & 0.111 (0.008) & 0.843 (0.166)\\
+BP-PWD & 0.000 (0.269) & 0.010 (0.008) & NA (NA) & 0.000 (0.168) & 0.011 (0.007) & NA (NA) & 0.000 (0.133) & 0.011 (0.006) & NA (NA)\\
+\bottomrule
+\insertTableNotes
+\end{longtable}
+\end{ThreePartTable}
