@@ -4,6 +4,7 @@ library(tidyr)    # For reshaping data (pivot_longer)
 library(ggplot2)  # For plotting
 library(stringr)  # For string manipulation (optional, for cleaning names)
 library(patchwork)
+library(RColorBrewer)
 
 table_files <- c("table_simulation_model1_0.1_long.rds", "table_simulation_model2_0.1_long.rds",
                  "table_simulation_model3_0.1_long.rds", "table_simulation_model4_0.1_long.rds",
@@ -63,8 +64,6 @@ selected_dgps <- c("DGP12", "DGP13", "DGP14", "DGP15", "DGP16")
 selected_dgps <- c("DGP11", "DGP17", "DGP18", "DGP19")
 
 
-# Define a reusable function to create the MCC plot for a given set of DGPs.
-# This fixes the bug where only one plot configuration was being used for p1, p2, p3, and p4.
 create_mcc_plot_by_dgp <- function(selected_dgps, full_data, method_levels, plot_subtitle) {
   
   # Filter data for the specific DGPs and metric
@@ -81,17 +80,14 @@ create_mcc_plot_by_dgp <- function(selected_dgps, full_data, method_levels, plot
   
   # Create the plot
   ggplot(plot_data,
-         # MODIFICATION 1: Group by DGP on X-axis, and fill/color by Method.
          aes(x = DGP, y = Value, fill = Method)) +
     # Create dodged boxplots: one box per Method for each DGP.
     geom_boxplot(outlier.size = 0.5, notch = FALSE,
-                 position = position_dodge(width = 0.9)) + # position_dodge is key for grouping
-    # MODIFICATION 2: Use the "Set2" color palette for methods, as requested.
+                 position = position_dodge(width = 0.9)) + 
     scale_fill_brewer(palette = "Set2") +
     labs(
-      title = NULL, # Main title will be added later by patchwork
+      title = NULL, 
       subtitle = plot_subtitle,
-      # MODIFICATION 3: Update axis and legend labels to reflect the new grouping.
       x = "",
       y = "MCC",
       fill = "Method" 
@@ -100,7 +96,6 @@ create_mcc_plot_by_dgp <- function(selected_dgps, full_data, method_levels, plot
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1, size = 11),
       plot.subtitle = element_text(hjust = 0.5, size = 13),
-      # The legend will be collected and placed by patchwork
       legend.position = "bottom" 
     )
 }
@@ -131,8 +126,8 @@ final_plot <- (p1 + p2) / (p3 + p4) +
       plot.title = element_text(hjust = 0.5, face = "bold", size = 18),
       legend.position = "bottom" # Position the shared legend at the bottom
     )
-  ) & # The '&' applies the following theme modifications to all subplots
-  theme(legend.key.size = unit(0.4, 'cm')) # Optional: Adjust legend key size
+  ) & 
+  theme(legend.key.size = unit(0.4, 'cm')) 
 
 # Display the final plot
 # print(final_plot)
@@ -145,7 +140,7 @@ ggsave("plot_DGPs_MCC_grouped_by_DGP.pdf",
 
 
 ## Plot AUC
-auc_method_levels <- c("EHyOut", "OG", "MSPLOT", "MDS5LOF")
+auc_method_levels <- c("EHyOut", "OG", "MBD", "MDS5LOF")
 
 method_color_map <- setNames(
   brewer.pal(n = length(method_levels), name = "Set2"), 
@@ -153,7 +148,6 @@ method_color_map <- setNames(
 )
 
 results_long_auc <- results_filtered_renamed %>%
-  # Filter to keep only the relevant methods for the AUC plot
   filter(Method %in% auc_method_levels) %>%
   group_by(DGP, Method) %>%
   mutate(SimulationID = row_number()) %>%
@@ -167,7 +161,7 @@ results_long_auc <- results_filtered_renamed %>%
     # Set factor levels for consistent ordering and color mapping
     Method = factor(Method, levels = auc_method_levels),
     DGP = factor(DGP, levels = dgp_names),
-    Metric = factor(Metric), # No need to order all metrics now
+    Metric = factor(Metric),
     Value = ifelse(!is.finite(Value), 0, Value)
   )
 
@@ -254,12 +248,9 @@ plot_boxplot_median_mcc <- ggplot(median_mcc_data,
                                   aes(x = Method, y = Median_MCC, fill = Method)) +
   # One boxplot per method, summarizing the 19 median values
   geom_boxplot(
-    outlier.size = 0.5, # <--- REDUCE THIS VALUE (e.g., to 0.5, 0.75, etc.)
-    # outlier.shape = 16, # Default shape is a solid circle (19 or 16 usually). You can change it.
-    # outlier.alpha = 0.8, # You can also make them slightly transparent
+    outlier.size = 0.5, 
     notch = FALSE
   ) +
-  # Add individual points (medians from each DGP) with jitter
   geom_jitter(width = 0.1, height = 0, size = 1, alpha = 0.4, color = "grey20") +
   scale_fill_brewer(palette = "Set2") + # Or Paired, Dark2, etc.
   labs(
@@ -270,8 +261,8 @@ plot_boxplot_median_mcc <- ggplot(median_mcc_data,
   ) +
   theme_minimal(base_size = 14) +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 9), # Rotate if names overlap
-    legend.position = "none", # Legend is redundant with x-axis and fill
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 9), 
+    legend.position = "none", 
     plot.title = element_text(hjust = 0.5, face = "bold")
   ) +
   guides(color = guide_legend(nrow = 1))
@@ -297,12 +288,8 @@ data_for_plot <- results_long %>%
 data_for_plot <- data_for_plot %>%
   mutate(Method = factor(Method, levels = method_levels))
 
-# Check the pivoted data
-# print(head(data_for_plot))
-# Expected columns: DGP, Method, SimulationID, MCC, Time
 
-# 2. Group by Method and calculate summary statistics
-# This step effectively "forgets" DGP and SimulationID by aggregating over them.
+# Group by Method and calculate summary statistics
 summary_df <- data_for_plot %>%
   group_by(Method) %>%
   summarise(
@@ -320,18 +307,16 @@ print(summary_df)
 p_log_time <- ggplot(summary_df, aes(x = Mean_Time, y = Mean_MCC, color = Method)) +
   geom_point(size = 3.5) +
   geom_linerange(aes(ymin = MCC_Q1, ymax = MCC_Q3), linewidth = 0.8) +
-  scale_x_log10( # Apply log10 transformation to the x-axis
-    breaks = scales::trans_breaks("log10", function(x) 10^x), # Nicer breaks
-    labels = scales::trans_format("log10", scales::math_format(10^.x)) # Nicer labels (e.g., 10^0, 10^1)
-    # Or use scales::label_number() for decimal, 
-    # or scales::label_log() for e.g. "1e-2", "1e0"
+  scale_x_log10(
+    breaks = scales::trans_breaks("log10", function(x) 10^x), 
+    labels = scales::trans_format("log10", scales::math_format(10^.x)) 
+
   ) +
   scale_color_brewer(palette = "Set2") +
-  # annotation_logticks(sides = "b") + # Optional: add log tick marks on the bottom axis
   labs(
     # title = "Performance Comparison: Mean MCC vs. Mean Time (Log Scale)",
     # subtitle = "Error bars represent Interquartile Range (IQR) of MCC for each Method",
-    x = "Mean Time (seconds, log scale)", # Updated x-axis label
+    x = "Mean Time (seconds, log scale)", 
     y = "Mean MCC",
     color = "Method"
   ) +
@@ -340,7 +325,7 @@ p_log_time <- ggplot(summary_df, aes(x = Mean_Time, y = Mean_MCC, color = Method
     legend.position = "top",
     plot.title = element_text(hjust = 0.5),
     plot.subtitle = element_text(hjust = 0.5),
-    axis.text.x = element_text(angle = 45, hjust = 1) # Angle x-axis labels if they overlap
+    axis.text.x = element_text(angle = 45, hjust = 1) 
   )
 
 print(p_log_time)
