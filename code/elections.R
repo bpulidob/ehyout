@@ -129,15 +129,17 @@ metAB_AUC <- function(model, param, nsim=20){
       out.ogk <- get_outliers_multivariate(sm_ind, method = "ogk")
       out.comedian <- get_outliers_multivariate(sm_ind, method = "comedian")
       out.rmd_sh <- get_outliers_multivariate(sm_ind, method = "rmd_sh")
+      out.lof <- dbscan::lof(sm_ind, minPts = 0.75*nrow(sm_ind))
 
       auc.mcd <- Metrics::auc(sm_out, out.mcd$values)
       auc.adjq_mcd <- Metrics::auc(sm_out, out.adjq_mcd$values)
       auc.ogk <- Metrics::auc(sm_out, out.ogk$values)
       auc.comedian <- Metrics::auc(sm_out, out.comedian$values)
       auc.rmd_sh <- Metrics::auc(sm_out, out.rmd_sh$values)
+      auc.lof <- Metrics::auc(sm_out, out.lof)
 
       data.frame(FASTMCD = auc.mcd, FASTMCDAdj = auc.adjq_mcd, OGK = auc.ogk,
-                 COM = auc.comedian, RMDsh = auc.rmd_sh)
+                 COM = auc.comedian, RMDsh = auc.rmd_sh, LOF = auc.lof)
     }
   return(val)
 }
@@ -156,8 +158,7 @@ for(i in 1:length(datasets_models)){
 df_auc_models_met["model"] <- rep(datasets_models, each=nsim)
 saveRDS(df_auc_models_met, "results/data/election_OM.rds")
 Sys.time()
-#Lo he lanzado "2025-03-28 13:12:58 CET"
-# Terminado> "2025-03-28 13:20:44 CET"
+
 
 election_OM <- readRDS("~/ehyout/results/data/election_OM.rds")
 # Compute mean of each column grouped by 'model'
@@ -176,6 +177,6 @@ election_OM_bp <- ggplot(election_summary_long, aes(x = variable, y = mean_value
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-ggsave("plot_election_om_bp.pdf", 
+ggsave("plot_election_om+LOF_bp.pdf", 
        plot = election_OM_bp,
        path = "results/plots", width = 7, height = 4, device = "pdf")
